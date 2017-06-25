@@ -11,6 +11,6 @@ include_directories(${SFML_INCLUDE_DIR})
 set(SOURCE_FILES main.cpp BaseState.h EventManager.h EventManager.cpp Game.h Game.cpp Mushroom.png
         arial.ttf intro.png keys.cfg StateManager.h StateManager.cpp SharedContext.h State_Game.h State_Game.cpp
         State_Intro.h State_Intro.cpp State_MainMenu.h State_MainMenu.cpp State_Paused.cpp State_Paused.h Window.h
-        Window.cpp EnumHasher.h intro.png Utilities.h)
+        Window.cpp EnumHasher.h intro.png Utilities.h ResourceManager.h)
 add_executable(ColdSpace ${SOURCE_FILES})
 target_link_libraries(ColdSpace ${SFML_LIBRARIES})
