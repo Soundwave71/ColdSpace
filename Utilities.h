@@ -31,5 +31,6 @@ namespace Utils {
 		}
 		return "";
 	}
-}
+
 #endif
+}
