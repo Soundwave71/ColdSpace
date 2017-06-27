@@ -3,6 +3,7 @@
 #include "EventManager.h"
 #include "StateManager.h"
 #include "SharedContext.h"
+#include "EntityManager.h"
 #include <iostream>
 
 class Game{
@@ -24,4 +25,5 @@ private:
 	sf::Clock m_clock;
 	sf::Time m_elapsed;
 	void RestartClock();
+	EntityManager m_entityManager;
 };

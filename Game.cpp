@@ -1,5 +1,5 @@
 #include "Game.h"
-Game::Game(): m_window("Chapter 5", sf::Vector2u(800, 600)), m_stateManager(&m_context){
+Game::Game(): m_window("Chapter 5", sf::Vector2u(800, 600)), m_stateManager(&m_context), m_entityManager(&m_context,100){
 	m_clock.restart();
 	srand(time(nullptr));
 

@@ -1,4 +1,4 @@
-Texture MainShipSprite
+Texture PlayerSprite
 Size 32 32
 Scale 1.0 1.0
 |Type|Name|StartFrame|EndFrame|Row|FrameTime|FrameActionStart|FrameActionEnd|
