@@ -1,12 +1,12 @@
 #include "StateManager.h"
-
 StateManager::StateManager(SharedContext* l_shared)
-	: m_shared(l_shared)
+		: m_shared(l_shared)
 {
 	RegisterState<State_Intro>(StateType::Intro);
 	RegisterState<State_MainMenu>(StateType::MainMenu);
 	RegisterState<State_Game>(StateType::Game);
 	RegisterState<State_Paused>(StateType::Paused);
+	RegisterState<State_GameOver>(StateType::GameOver);
 }
 
 StateManager::~StateManager(){
@@ -38,17 +38,17 @@ void StateManager::Update(const sf::Time& l_time){
 
 void StateManager::Draw(){
 	if (m_states.empty()){ return; }
-	if (m_states.back().second->IsTransparent() && m_states.size() > 1){
+	if(m_states.back().second->IsTransparent() && m_states.size() > 1){
 		auto itr = m_states.end();
-		while (itr != m_states.begin()){
-			if (itr != m_states.end()){
-				if (!itr->second->IsTransparent()){
+		while(itr != m_states.begin()){
+			if(itr != m_states.end()){
+				if(!itr->second->IsTransparent()){
 					break;
 				}
 			}
 			--itr;
 		}
-		for (; itr != m_states.end(); ++itr){
+		for(; itr != m_states.end(); ++itr){
 			m_shared->m_wind->GetRenderWindow()->setView(itr->second->GetView());
 			itr->second->Draw();
 		}
@@ -61,7 +61,7 @@ SharedContext* StateManager::GetContext(){ return m_shared; }
 
 bool StateManager::HasState(const StateType& l_type){
 	for (auto itr = m_states.begin();
-		itr != m_states.end(); ++itr)
+		 itr != m_states.end(); ++itr)
 	{
 		if (itr->first == l_type){
 			auto removed = std::find(m_toRemove.begin(), m_toRemove.end(), l_type);
@@ -82,7 +82,7 @@ void StateManager::ProcessRequests(){
 void StateManager::SwitchTo(const StateType& l_type){
 	m_shared->m_eventManager->SetCurrentState(l_type);
 	for (auto itr = m_states.begin();
-		itr != m_states.end(); ++itr)
+		 itr != m_states.end(); ++itr)
 	{
 		if (itr->first == l_type){
 			m_states.back().second->Deactivate();
@@ -113,14 +113,14 @@ void StateManager::CreateState(const StateType& l_type){
 	auto newState = m_stateFactory.find(l_type);
 	if (newState == m_stateFactory.end()){ return; }
 	BaseState* state = newState->second();
-	state->m_view =m_shared->m_wind->GetRenderWindow()->getDefaultView();
+	state->m_view = m_shared->m_wind->GetRenderWindow()->getDefaultView();
 	m_states.emplace_back(l_type, state);
 	state->OnCreate();
 }
 
 void StateManager::RemoveState(const StateType& l_type){
 	for (auto itr = m_states.begin();
-		itr != m_states.end(); ++itr)
+		 itr != m_states.end(); ++itr)
 	{
 		if (itr->first == l_type){
 			itr->second->OnDestroy();

@@ -1,4 +1,5 @@
 #include "EventManager.h"
+#include "Utilities.h"
 
 EventManager::EventManager()
 	:m_currentState(StateType(0)), m_hasFocus(true)
@@ -135,7 +136,7 @@ void EventManager::LoadBindings(){
 	std::string delimiter = ":";
 
 	std::ifstream bindings;
-	bindings.open("keys.cfg");
+	bindings.open(Utils::GetWorkingDirectory() + "keys.cfg");
 	if (!bindings.is_open()){ std::cout << "! Failed loading keys.cfg." << std::endl; return; }
 	std::string line;
 	while (std::getline(bindings, line)){

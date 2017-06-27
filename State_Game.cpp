@@ -1,6 +1,5 @@
 #include "State_Game.h"
 #include "StateManager.h"
-#include "EntityManager.h"
 
 State_Game::State_Game(StateManager* l_stateManager)
 	: BaseState(l_stateManager){}
