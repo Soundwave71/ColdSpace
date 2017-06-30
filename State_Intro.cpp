@@ -11,7 +11,7 @@ void State_Intro::OnCreate(){
 
 	sf::Vector2u windowSize = m_stateMgr->GetContext()->m_wind->GetRenderWindow()->getSize();
 
-	m_introTexture.loadFromFile(Utils::GetWorkingDirectory()+"media/Texture/intro.png");
+	m_introTexture.loadFromFile(Utils::GetWorkingDirectory()+"media/Textures/intro.png");
 	m_introSprite.setTexture(m_introTexture);
 	m_introSprite.setOrigin(m_introTexture.getSize().x / 2.0f,
 		m_introTexture.getSize().y / 2.0f);
