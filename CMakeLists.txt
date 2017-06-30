@@ -12,8 +12,8 @@ set(SOURCE_FILES main.cpp BaseState.h EventManager.h EventManager.cpp Game.h Gam
         State_Intro.h State_Intro.cpp State_MainMenu.h State_MainMenu.cpp State_Paused.cpp State_Paused.h Window.h
         Window.cpp EnumHasher.h  Utilities.h ResourceManager.h TextureManager.h Textures.cfg
         SpriteSheet.cpp SpriteSheet.h Anim_Base.cpp Anim_Base.h Anim_Directional.cpp Anim_Directional.h
-        Direction.h shlwapi.lib tiles.cfg  Map.cpp Map.h EntityBase.cpp EntityBase.h EntityManager.cpp
-        EntityManager.h Enemy.cpp Enemy.h Character.cpp Character.h Player.cpp Player.h media DebugOverlay.h State_GameOver.cpp
-        State_GameOver.h)
+        Directions.h shlwapi.lib tiles.cfg  Map.cpp Map.h Entity_Manager.cpp
+        Entity_Manager.h media DebugOverlay.h State_GameOver.cpp
+        State_GameOver.h ECS_Types.h C_Base.h C_Position.h Bitmask.h C_Drawable.h C_SpriteSheet.h Event_Queue.h EntityEvents.h System_Manager.cpp System_Manager.h S_Base.cpp S_Base.h Observer.h Message.h Communicator.h MessageHandler.h EntityMessages.h S_Renderer.cpp S_Renderer.h)
 add_executable(ColdSpace ${SOURCE_FILES})
 target_link_libraries(ColdSpace ${SFML_LIBRARIES} shlwapi.lib)

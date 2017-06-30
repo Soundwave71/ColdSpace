@@ -67,7 +67,7 @@ public:
     }
 
 protected:
-    //Non Polymorphic static loading function.
+    //Non Polymorphic "static" loading function.
     T* Load(const std::string& l_path){
         return static_cast<Derived*>(this)->Load(l_path);
     }

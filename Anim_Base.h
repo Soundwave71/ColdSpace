@@ -6,23 +6,21 @@
 #define COLDSPACE_ANIM_BASE_H
 
 #include <string>
-class SpriteSheet;
-
 using Frame = unsigned int;
 
+class SpriteSheet;
 class Anim_Base{
     friend class SpriteSheet;
 public:
-    Anim_Base(): m_frameCurrent(0), m_frameStart(0), m_frameEnd(0),
-                            m_frameRow(0), m_frameTime(0.f), m_elapsedTime(0.f), m_frameActionStart(-1),
-                            m_frameActionEnd(-1), m_loop(false), m_playing(false){}
-    virtual ~Anim_Base(){};
+    Anim_Base();
+    virtual ~Anim_Base();
 
     void SetSpriteSheet(SpriteSheet* l_sheet);
-    void SetFrame(Frame l_frame);
+
+    bool SetFrame(Frame l_frame);
     void SetStartFrame(Frame l_frame);
     void SetEndFrame(Frame l_frame);
-    void SetFrameRow(Frame l_row);
+    void SetFrameRow(unsigned int l_row);
     void SetActionStart(Frame l_frame);
     void SetActionEnd(Frame l_frame);
     void SetFrameTime(float l_time);
@@ -30,10 +28,11 @@ public:
     void SetName(const std::string& l_name);
 
     SpriteSheet* GetSpriteSheet();
+
     Frame GetFrame();
     Frame GetStartFrame();
     Frame GetEndFrame();
-    Frame GetFrameRow();
+    unsigned int GetFrameRow();
     int GetActionStart();
     int GetActionEnd();
     float GetFrameTime();
@@ -41,6 +40,7 @@ public:
     bool IsLooping();
     bool IsPlaying();
     bool IsInAction();
+    bool CheckMoved();
     std::string GetName();
 
     void Play();
@@ -48,7 +48,7 @@ public:
     void Stop();
     void Reset();
 
-    virtual void Update(const float& l_dT);
+    virtual void Update(float l_dT);
 
     friend std::stringstream& operator >>(
             std::stringstream& l_stream, Anim_Base& a)
@@ -71,10 +71,10 @@ protected:
     float m_elapsedTime;
     bool m_loop;
     bool m_playing;
+    bool m_hasMoved;
 
     std::string m_name;
 
     SpriteSheet* m_spriteSheet;
 };
-
 #endif //COLDSPACE_ANIM_BASE_H
