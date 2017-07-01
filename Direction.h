@@ -5,6 +5,6 @@
 #ifndef COLDSPACE_DIRECTIONS_H
 #define COLDSPACE_DIRECTIONS_H
 
-enum class Directions {Up=0,Left, Down, Right};
+enum class Direction {Up=0,Left, Down, Right};
 
 #endif //COLDSPACE_DIRECTIONS_H

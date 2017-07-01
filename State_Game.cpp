@@ -27,8 +27,8 @@ void State_Game::OnCreate(){
 	m_gameMap->LoadMap("media/Maps/map1.map");
 
 	Entity_Manager* entities = m_stateMgr->GetContext()->m_entityManager;
-	//m_stateMgr->GetContext()->m_systemManager->GetSystem<S_Collision>(System::Collision)->SetMap(m_gameMap);
-	//m_stateMgr->GetContext()->m_systemManager->GetSystem<S_Movement>(System::Movement)->SetMap(m_gameMap);
+	m_stateMgr->GetContext()->m_systemManager->GetSystem<S_Collision>(System::Collision)->SetMap(m_gameMap);
+	m_stateMgr->GetContext()->m_systemManager->GetSystem<S_Movement>(System::Movement)->SetMap(m_gameMap);
 	m_player = m_gameMap->GetPlayerId();
 }
 
@@ -59,8 +59,6 @@ void State_Game::UpdateCamera(){
 	C_Position* pos = m_stateMgr->GetContext()->m_entityManager->
 			GetComponent<C_Position>(m_player, Component::Position);
 
-
-	//keeps the camera on the player, but doesn't let it move out of the map boundaries.
 	m_view.setCenter(pos->GetPosition());
 	context->m_wind->GetRenderWindow()->setView(m_view);
 
@@ -105,13 +103,13 @@ void State_Game::Deactivate(){}
 void State_Game::PlayerMove(EventDetails* l_details){
 	Message msg((MessageType)EntityMessage::Move);
 	if (l_details->m_name == "Player_MoveLeft"){
-		msg.m_int = (int)Directions::Left;
+		msg.m_int = (int)Direction::Left;
 	} else if (l_details->m_name == "Player_MoveRight"){
-		msg.m_int = (int)Directions::Right;
+		msg.m_int = (int)Direction::Right;
 	} else if (l_details->m_name == "Player_MoveUp"){
-		msg.m_int = (int)Directions::Up;
+		msg.m_int = (int)Direction::Up;
 	} else if (l_details->m_name == "Player_MoveDown"){
-		msg.m_int = (int)Directions::Down;
+		msg.m_int = (int)Direction::Down;
 	}
 	msg.m_receiver = m_player;
 	m_stateMgr->GetContext()->m_systemManager->GetMessageHandler()->Dispatch(msg);

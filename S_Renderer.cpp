@@ -46,7 +46,7 @@ void S_Renderer::Notify(const Message& l_message){
         EntityMessage m = (EntityMessage)l_message.m_type;
         switch(m){
             case EntityMessage::Direction_Changed:
-                SetSheetDirection(l_message.m_receiver, (Directions)l_message.m_int);
+                SetSheetDirection(l_message.m_receiver, (Direction)l_message.m_int);
                 break;
         }
     }
@@ -72,7 +72,7 @@ void S_Renderer::Render(Window* l_wind, unsigned int l_layer)
     }
 }
 
-void S_Renderer::SetSheetDirection(const EntityId& l_entity, const Directions& l_dir)
+void S_Renderer::SetSheetDirection(const EntityId& l_entity, const Direction& l_dir)
 {
     Entity_Manager* entities = m_systemManager->GetEntityManager();
     if (!entities->HasComponent(l_entity, Component::SpriteSheet)){ return; }

@@ -11,10 +11,10 @@ Entity_Manager::Entity_Manager(SystemManager* l_sysMgr,
 {
     AddComponentType<C_Position>(Component::Position);
     AddComponentType<C_SpriteSheet>(Component::SpriteSheet);
-    /*AddComponentType<C_State>(Component::State);
+    AddComponentType<C_State>(Component::State);
     AddComponentType<C_Movable>(Component::Movable);
     AddComponentType<C_Controller>(Component::Controller);
-    AddComponentType<C_Collidable>(Component::Collidable);*/
+    AddComponentType<C_Collidable>(Component::Collidable);
 }
 
 Entity_Manager::~Entity_Manager(){ Purge(); }

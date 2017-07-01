@@ -6,7 +6,7 @@
 
 SpriteSheet::SpriteSheet(TextureManager* l_textMgr)
         :m_textureManager(l_textMgr), m_animationCurrent(nullptr),
-         m_spriteScale(1.f, 1.f), m_direction(Directions::Down){}
+         m_spriteScale(1.f, 1.f), m_direction(Direction::Down){}
 
 SpriteSheet::~SpriteSheet(){ ReleaseSheet(); }
 
@@ -23,7 +23,7 @@ const sf::Vector2u& SpriteSheet::GetSpriteSize()const{ return m_spriteSize; }
 const sf::Vector2f& SpriteSheet::GetSpritePosition()const{
     return m_sprite.getPosition();
 }
-Directions SpriteSheet::GetDirection(){ return m_direction; }
+Direction SpriteSheet::GetDirection(){ return m_direction; }
 Anim_Base* SpriteSheet::GetCurrentAnim(){
     return m_animationCurrent;
 }
@@ -37,7 +37,7 @@ void SpriteSheet::SetSpritePosition(const sf::Vector2f& l_pos){
     m_sprite.setPosition(l_pos);
 }
 
-void SpriteSheet::SetDirection(const Directions& l_dir){
+void SpriteSheet::SetDirection(const Direction& l_dir){
     if (l_dir == m_direction){ return; }
     m_direction = l_dir;
     m_animationCurrent->CropSprite();

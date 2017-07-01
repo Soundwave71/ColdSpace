@@ -24,8 +24,8 @@ public:
     void SetSpriteSize(const sf::Vector2u& l_size);
     void SetSpritePosition(const sf::Vector2f& l_pos);
 
-    void SetDirection(const Directions& l_dir);
-    Directions GetDirection();
+    void SetDirection(const Direction& l_dir);
+    Direction GetDirection();
     void SetSheetPadding(const sf::Vector2f& l_padding);
     void SetSpriteSpacing(const sf::Vector2f& l_spacing);
     const sf::Vector2f& GetSheetPadding()const;
@@ -44,7 +44,7 @@ private:
     sf::Sprite m_sprite;
     sf::Vector2u m_spriteSize;
     sf::Vector2f m_spriteScale;
-    Directions m_direction;
+    Direction m_direction;
 
     sf::Vector2f m_sheetPadding;
     sf::Vector2f m_spriteSpacing;

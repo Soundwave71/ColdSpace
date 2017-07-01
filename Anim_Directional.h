@@ -6,7 +6,7 @@
 #define COLDSPACE_ANIM_DIRECTIONAL_H
 
 #include "Anim_Base.h"
-#include "Directions.h"
+#include "Direction.h"
 
 class Anim_Directional : public Anim_Base{
 protected:

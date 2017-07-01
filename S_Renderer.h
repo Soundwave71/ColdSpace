@@ -20,7 +20,7 @@ public:
     void Notify(const Message& l_message);
     void Render(Window* l_wind, unsigned int l_layer);
 private:
-    void SetSheetDirection(const EntityId& l_entity, const Directions& l_dir);
+    void SetSheetDirection(const EntityId& l_entity, const Direction& l_dir);
     void SortDrawables();
 };
 
