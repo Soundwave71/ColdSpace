@@ -186,7 +186,6 @@ void EventManager::LoadBindings(){
 				bind = nullptr;
 				break;
 			}
-
 			// stoi-function replacement. Info at pg. 85 Chapter 4.
 			EventType  type = EventType(StringToInt( keyval.substr(start, end-start)));
 			EventInfo eventInfo;
@@ -205,11 +204,10 @@ void EventManager::LoadBindings(){
 				char* w = new char[window.length() + 1]; // +1 for \0
 				char* e = new char[element.length() + 1];
 
-				//TODO see if works.
-				window.copy(w,window.length()+1);
-				element.copy(e,element.length()+1);
-				w[window.length()]='\0';
-				e[element.length()]='\0';
+				// Size in bytes is the same as charater length. 1 char = 1B.
+				strncat(w,window.c_str(), window.length() + 1 );
+				strncat(e, element.c_str(), element.length() + 1);
+
 
 				eventInfo.m_gui.m_interface = w;
 				eventInfo.m_gui.m_element = e;
