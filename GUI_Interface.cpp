@@ -375,3 +375,4 @@ void GUI_Interface::DefocusTextfields(){
         event.m_element = itr.second->m_name.c_str();
         m_guiManager->AddEvent(event);
     }
+}

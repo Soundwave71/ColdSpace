@@ -12,7 +12,7 @@
 #include "EnumHasher.h"
 #include <sstream>
 
-enum class GUI_ElementType{ Window, Label, Button, Scrollbar, Textfield };
+enum class GUI_ElementType{ None =-1 ,Window, Label, Button, Scrollbar, Textfield };
 
 using ElementStyles = std::unordered_map<GUI_ElementState, GUI_Style, EnumClassHash>;
 

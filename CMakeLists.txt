@@ -19,6 +19,7 @@ set(SOURCE_FILES main.cpp BaseState.h EventManager.h EventManager.cpp Game.h Gam
         MessageHandler.h EntityMessages.h S_Renderer.cpp S_Renderer.h C_Movable.h S_Movement.cpp S_Movement.h S_Control.cpp
         S_Control.h S_Collision.cpp S_Collision.h S_SheetAnimation.cpp S_SheetAnimation.h S_State.cpp S_State.h C_State.h
         C_Controller.h C_Collidable.h GUI_Style.h FontManager.h GUI_Element.cpp GUI_Element.h GUI_Event.h GUI_Interface.cpp
-        GUI_Interface.h fonts.cfg)
+        GUI_Interface.h fonts.cfg GUI_Manager.cpp GUI_Manager.h GUI_Scrollbar.cpp GUI_Scrollbar.h GUI_Textfield.cpp GUI_Textfield.h GUI_Label.cpp GUI_Label.h)
+
 add_executable(ColdSpace ${SOURCE_FILES})
 target_link_libraries(ColdSpace ${SFML_LIBRARIES} shlwapi.lib)

@@ -1,20 +1,21 @@
+#include <cstring>
 #include "EventManager.h"
-#include "Utilities.h"
-
+#include "StateManager.h"
+#include <cstring>
 EventManager::EventManager()
-	:m_currentState(StateType(0)), m_hasFocus(true)
+		:m_currentState(StateType(0)), m_hasFocus(true)
 {
 	LoadBindings();
 }
 
 EventManager::~EventManager(){
-	for (auto &itr : m_bindings){
+	for(auto &itr : m_bindings){
 		delete itr.second;
 	}
 }
 
 bool EventManager::AddBinding(Binding *l_binding){
-	if (m_bindings.find(l_binding->m_name) != m_bindings.end())
+	if(m_bindings.find(l_binding->m_name) != m_bindings.end())
 		return false;
 
 	return m_bindings.emplace(l_binding->m_name, l_binding).second;
@@ -32,14 +33,19 @@ void EventManager::SetCurrentState(StateType l_state){
 	m_currentState = l_state;
 }
 
-void EventManager::SetFocus(const bool& l_focus){ m_hasFocus = l_focus; }
+void EventManager::SetFocus(bool l_focus){ m_hasFocus = l_focus; }
 
 void EventManager::HandleEvent(sf::Event& l_event){
 	// Handling SFML events.
-	for (auto &b_itr : m_bindings){
+	for(auto &b_itr : m_bindings){
 		Binding* bind = b_itr.second;
-		for (auto &e_itr : bind->m_events){
+		for(auto &e_itr : bind->m_events){
 			EventType sfmlEvent = (EventType)l_event.type;
+			if (e_itr.first == EventType::GUI_Click || e_itr.first == EventType::GUI_Release ||
+				e_itr.first == EventType::GUI_Hover || e_itr.first == EventType::GUI_Leave)
+			{
+				continue;
+			}
 			if (e_itr.first != sfmlEvent){ continue; }
 			if (sfmlEvent == EventType::KeyDown || sfmlEvent == EventType::KeyUp){
 				if (e_itr.second.m_code == l_event.key.code){
@@ -79,49 +85,73 @@ void EventManager::HandleEvent(sf::Event& l_event){
 	}
 }
 
+void EventManager::HandleEvent(GUI_Event& l_event){
+	for (auto &b_itr : m_bindings){
+		Binding* bind = b_itr.second;
+		for (auto &e_itr : bind->m_events)
+		{
+			if (e_itr.first != EventType::GUI_Click && e_itr.first != EventType::GUI_Release &&
+				e_itr.first != EventType::GUI_Hover && e_itr.first != EventType::GUI_Leave)
+			{ continue; }
+			if ((e_itr.first == EventType::GUI_Click && l_event.m_type != GUI_EventType::Click) ||
+				(e_itr.first == EventType::GUI_Release && l_event.m_type != GUI_EventType::Release) ||
+				(e_itr.first == EventType::GUI_Hover && l_event.m_type != GUI_EventType::Hover) ||
+				(e_itr.first == EventType::GUI_Leave && l_event.m_type != GUI_EventType::Leave))
+			{ continue; }
+			// REPLACED WITH STRCMP!
+			if (strcmp(e_itr.second.m_gui.m_interface, l_event.m_interface) ||
+				strcmp(e_itr.second.m_gui.m_element, l_event.m_element))
+			{ continue; }
+			bind->m_details.m_guiInterface = l_event.m_interface;
+			bind->m_details.m_guiElement = l_event.m_element;
+			++(bind->c);
+		}
+	}
+}
+
 void EventManager::Update(){
 	if (!m_hasFocus){ return; }
 	for (auto &b_itr : m_bindings){
 		Binding* bind = b_itr.second;
-		for (auto &e_itr : bind->m_events){
-			switch (e_itr.first){
-			case(EventType::Keyboard) :
-				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key(e_itr.second.m_code))){
-					if (bind->m_details.m_keyCode != -1){
-						bind->m_details.m_keyCode = e_itr.second.m_code;
+		for(auto &e_itr : bind->m_events){
+			switch(e_itr.first){
+				case(EventType::Keyboard):
+					if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key(e_itr.second.m_code))){
+						if (bind->m_details.m_keyCode != -1){
+							bind->m_details.m_keyCode = e_itr.second.m_code;
+						}
+						++(bind->c);
 					}
-					++(bind->c);
-				}
-			break;
-			case(EventType::Mouse) :
-				if (sf::Mouse::isButtonPressed(sf::Mouse::Button(e_itr.second.m_code))){
-					if (bind->m_details.m_keyCode != -1){
-						bind->m_details.m_keyCode = e_itr.second.m_code;
+					break;
+				case(EventType::Mouse):
+					if(sf::Mouse::isButtonPressed(sf::Mouse::Button(e_itr.second.m_code))){
+						if (bind->m_details.m_keyCode != -1){
+							bind->m_details.m_keyCode = e_itr.second.m_code;
+						}
+						++(bind->c);
 					}
-					++(bind->c);
-				}
-			break;
-			case(EventType::Joystick) :
-				// Up for expansion.
-				break;
+					break;
+				case(EventType::Joystick):
+					// Up for expansion.
+					break;
 			}
 		}
 
-		if (bind->m_events.size() == bind->c){
+		if(bind->m_events.size() == bind->c){
 			auto stateCallbacks = m_callbacks.find(m_currentState);
 			auto otherCallbacks = m_callbacks.find(StateType(0));
 
-			if (stateCallbacks != m_callbacks.end()){
+			if(stateCallbacks != m_callbacks.end()){
 				auto callItr = stateCallbacks->second.find(bind->m_name);
-				if (callItr != stateCallbacks->second.end()){
+				if(callItr != stateCallbacks->second.end()){
 					// Pass in information about events.
 					callItr->second(&bind->m_details);
 				}
 			}
 
-			if (otherCallbacks != m_callbacks.end()){
+			if(otherCallbacks != m_callbacks.end()){
 				auto callItr = otherCallbacks->second.find(bind->m_name);
-				if (callItr != otherCallbacks->second.end()){
+				if(callItr != otherCallbacks->second.end()){
 					// Pass in information about events.
 					callItr->second(&bind->m_details);
 				}
@@ -159,7 +189,31 @@ void EventManager::LoadBindings(){
 
 			// stoi-function replacement. Info at pg. 85 Chapter 4.
 			EventType  type = EventType(StringToInt( keyval.substr(start, end-start)));
+			EventInfo eventInfo;
+			if (type == EventType::GUI_Click || type == EventType::GUI_Release ||
+				type == EventType::GUI_Hover || type == EventType::GUI_Leave)
+			{
+				start = end + delimiter.length();
+				end = keyval.find(delimiter, start);
+				std::string window = keyval.substr(start, end - start);
+				std::string element;
+				if (end != std::string::npos){
+					start = end + delimiter.length();
+					end = keyval.length();
+					element = keyval.substr(start, end);
+				}
+				char* w = new char[window.length() + 1]; // +1 for \0
+				char* e = new char[element.length() + 1];
 
+				//TODO see if works.
+				window.copy(w,window.length()+1);
+				element.copy(e,element.length()+1);
+				w[window.length()]='\0';
+				e[element.length()]='\0';
+
+				eventInfo.m_gui.m_interface = w;
+				eventInfo.m_gui.m_element = e;
+			} else {
 
 			//stoi-function replacement. Info at pg. 85 Chapter 4.
 			int code= StringToInt(keyval.substr(end+delimiter.length(), keyval.find(delimiter, end +delimiter.length())));
@@ -167,6 +221,7 @@ void EventManager::LoadBindings(){
 
 			EventInfo eventInfo;
 			eventInfo.m_code = code;
+			}
 			bind->BindEvent(type, eventInfo);
 		}
 

@@ -17,6 +17,10 @@ public:
 	void Draw();
 
 	void MouseClick(EventDetails* l_details);
+
+	void Play(EventDetails* l_details);
+	void Quit(EventDetails* l_details);
+
 private:
 	sf::Font m_font;
 	sf::Text m_text;
