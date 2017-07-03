@@ -92,7 +92,9 @@ void Map::LoadMap(const std::string& l_path){
         } else if(type == "DEFAULT_FRICTION"){
             keystream >> m_defaultTile.m_friction.x >> m_defaultTile.m_friction.y;
         } else if(type == "ENTITY"){
-            // Set up entity here.
+
+            // Sets up entities
+
             std::string name;
             keystream >> name;
             if (name == "Player" && m_playerId != -1){ continue; }
