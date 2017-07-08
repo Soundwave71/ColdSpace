@@ -12,16 +12,16 @@
 #include "GUI_Event.h"
 #include "EnumHasher.h"
 
-enum class EventType{ KeyDown = sf::Event::KeyPressed,
-	KeyUp = sf::Event::KeyReleased,
-	MButtonDown = sf::Event::MouseButtonPressed,
+enum class EventType{ KeyDown = sf::Event::KeyPressed, 
+	KeyUp = sf::Event::KeyReleased, 
+	MButtonDown = sf::Event::MouseButtonPressed, 
 	MButtonUp = sf::Event::MouseButtonReleased,
 	MouseWheel = sf::Event::MouseWheelMoved,
-	WindowResized = sf::Event::Resized,
+	WindowResized = sf::Event::Resized, 
 	GainedFocus = sf::Event::GainedFocus,
-	LostFocus = sf::Event::LostFocus,
+	LostFocus = sf::Event::LostFocus, 
 	MouseEntered = sf::Event::MouseEntered,
-	MouseLeft = sf::Event::MouseLeft,
+	MouseLeft = sf::Event::MouseLeft, 
 	Closed = sf::Event::Closed,
 	TextEntered = sf::Event::TextEntered,
 	Keyboard = sf::Event::Count + 1, Mouse, Joystick,
@@ -40,7 +40,7 @@ struct EventInfo{
 
 struct EventDetails{
 	EventDetails(const std::string& l_bindName)
-			: m_name(l_bindName){ Clear(); }
+		: m_name(l_bindName){ Clear(); }
 	std::string m_name;
 
 	sf::Vector2i m_size;
@@ -72,9 +72,9 @@ struct Binding{
 	~Binding(){
 		// GUI portion.
 		for (auto itr = m_events.begin();
-			 itr != m_events.end(); ++itr)
+			itr != m_events.end(); ++itr)
 		{
-			if (itr->first == EventType::GUI_Click || itr->first == EventType::GUI_Release ||
+			if (itr->first == EventType::GUI_Click || itr->first == EventType::GUI_Release || 
 				itr->first == EventType::GUI_Hover || itr->first == EventType::GUI_Leave)
 			{
 				delete [] itr->second.m_gui.m_interface;
@@ -98,7 +98,7 @@ using Bindings = std::unordered_map<std::string, Binding*>;
 using CallbackContainer = std::unordered_map<std::string, std::function<void(EventDetails*)>>;
 // State callback container.
 enum class StateType;
-using Callbacks = std::unordered_map<StateType, CallbackContainer,EnumClassHash>;
+using Callbacks = std::unordered_map<StateType, CallbackContainer, EnumClassHash>;
 
 class EventManager{
 public:
@@ -113,8 +113,8 @@ public:
 
 	// Needs to be defined in the header!
 	template<class T>
-	bool AddCallback(StateType l_state, const std::string& l_name,
-					 void(T::*l_func)(EventDetails*), T* l_instance)
+	bool AddCallback(StateType l_state, const std::string& l_name, 
+		void(T::*l_func)(EventDetails*), T* l_instance)
 	{
 		auto itr = m_callbacks.emplace(l_state, CallbackContainer()).first;
 		auto temp = std::bind(l_func,l_instance, std::placeholders::_1);
@@ -140,10 +140,10 @@ public:
 	}
 private:
 	void LoadBindings();
-	int StringToInt(std::string key);
+
 	StateType m_currentState;
 	Bindings m_bindings;
 	Callbacks m_callbacks;
-
+	int StringToInt(std::string key);
 	bool m_hasFocus;
 };

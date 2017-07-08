@@ -2,7 +2,7 @@
 #include "StateManager.h"
 
 State_Game::State_Game(StateManager* l_stateManager)
-		: BaseState(l_stateManager){}
+	: BaseState(l_stateManager){}
 
 State_Game::~State_Game(){}
 
@@ -25,7 +25,7 @@ void State_Game::OnCreate(){
 	m_gameMap = new Map(m_stateMgr->GetContext());
 	m_gameMap->LoadMap("media/Maps/map1.map");
 
-	Entity_Manager* entities = m_stateMgr->GetContext()->m_entityManager;
+	EntityManager* entities = m_stateMgr->GetContext()->m_entityManager;
 	m_stateMgr->GetContext()->m_systemManager->GetSystem<S_Collision>(System::Collision)->SetMap(m_gameMap);
 	m_stateMgr->GetContext()->m_systemManager->GetSystem<S_Movement>(System::Movement)->SetMap(m_gameMap);
 	m_player = m_gameMap->GetPlayerId();
@@ -44,7 +44,7 @@ void State_Game::OnDestroy(){
 	evMgr->RemoveCallback(StateType::Game, "Player_MoveRight");
 	evMgr->RemoveCallback(StateType::Game, "Player_MoveUp");
 	evMgr->RemoveCallback(StateType::Game, "Player_MoveDown");
-
+	
 	delete m_gameMap;
 }
 
@@ -59,7 +59,7 @@ void State_Game::UpdateCamera(){
 	if (m_player == -1){ return; }
 	SharedContext* context = m_stateMgr->GetContext();
 	C_Position* pos = m_stateMgr->GetContext()->m_entityManager->
-			GetComponent<C_Position>(m_player, Component::Position);
+		GetComponent<C_Position>(m_player, Component::Position);
 
 	m_view.setCenter(pos->GetPosition());
 	context->m_wind->GetRenderWindow()->setView(m_view);
@@ -86,7 +86,7 @@ void State_Game::Draw(){
 	for (unsigned int i = 0; i < Sheet::Num_Layers; ++i){
 		m_gameMap->Draw(i);
 		m_stateMgr->GetContext()->m_systemManager->Draw(
-				m_stateMgr->GetContext()->m_wind, i);
+			m_stateMgr->GetContext()->m_wind, i);
 	}
 }
 

@@ -1,9 +1,9 @@
 #include <cstring>
 #include "EventManager.h"
 #include "StateManager.h"
-#include <cstring>
+
 EventManager::EventManager()
-		:m_currentState(StateType(0)), m_hasFocus(true)
+	:m_currentState(StateType(0)), m_hasFocus(true)
 {
 	LoadBindings();
 }
@@ -115,25 +115,25 @@ void EventManager::Update(){
 		Binding* bind = b_itr.second;
 		for(auto &e_itr : bind->m_events){
 			switch(e_itr.first){
-				case(EventType::Keyboard):
-					if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key(e_itr.second.m_code))){
-						if (bind->m_details.m_keyCode != -1){
-							bind->m_details.m_keyCode = e_itr.second.m_code;
-						}
-						++(bind->c);
+			case(EventType::Keyboard):
+				if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key(e_itr.second.m_code))){
+					if (bind->m_details.m_keyCode != -1){
+						bind->m_details.m_keyCode = e_itr.second.m_code;
 					}
-					break;
-				case(EventType::Mouse):
-					if(sf::Mouse::isButtonPressed(sf::Mouse::Button(e_itr.second.m_code))){
-						if (bind->m_details.m_keyCode != -1){
-							bind->m_details.m_keyCode = e_itr.second.m_code;
-						}
-						++(bind->c);
+					++(bind->c);
+				}
+				break;
+			case(EventType::Mouse):
+				if(sf::Mouse::isButtonPressed(sf::Mouse::Button(e_itr.second.m_code))){
+					if (bind->m_details.m_keyCode != -1){
+						bind->m_details.m_keyCode = e_itr.second.m_code;
 					}
-					break;
-				case(EventType::Joystick):
-					// Up for expansion.
-					break;
+					++(bind->c);
+				}
+				break;
+			case(EventType::Joystick):
+				// Up for expansion.
+				break;
 			}
 		}
 
@@ -169,25 +169,19 @@ void EventManager::LoadBindings(){
 	bindings.open(Utils::GetWorkingDirectory() + "keys.cfg");
 	if (!bindings.is_open()){ std::cout << "! Failed loading keys.cfg." << std::endl; return; }
 	std::string line;
-	while (std::getline(bindings, line)){
+	while(std::getline(bindings,line)){
 		std::stringstream keystream(line);
 		std::string callbackName;
 		keystream >> callbackName;
 		Binding* bind = new Binding(callbackName);
-		while (!keystream.eof()){
+		while(!keystream.eof()){
 			std::string keyval;
 			keystream >> keyval;
 			int start = 0;
 			int end = keyval.find(delimiter);
-
-			if (end == std::string::npos)
-			{
-				delete bind;
-				bind = nullptr;
-				break;
-			}
-			// stoi-function replacement. Info at pg. 85 Chapter 4.
+			if (end == std::string::npos){ delete bind; bind = nullptr; break; }
 			EventType  type = EventType(StringToInt( keyval.substr(start, end-start)));
+
 			EventInfo eventInfo;
 			if (type == EventType::GUI_Click || type == EventType::GUI_Release ||
 				type == EventType::GUI_Hover || type == EventType::GUI_Leave)
@@ -205,31 +199,26 @@ void EventManager::LoadBindings(){
 				char* e = new char[element.length() + 1];
 
 				// Size in bytes is the same as charater length. 1 char = 1B.
-				strncat(w,window.c_str(), window.length() + 1 );
-				strncat(e, element.c_str(), element.length() + 1);
-
-
+				std::size_t windowlenght = window.copy(w, window.length());
+				std::size_t elementlength =element.copy(e,element.length());
+				w[windowlenght]='\0';
+				e[elementlength]='\0';
 				eventInfo.m_gui.m_interface = w;
 				eventInfo.m_gui.m_element = e;
+
+
 			} else {
-
-			//stoi-function replacement. Info at pg. 85 Chapter 4.
-			int code= StringToInt(keyval.substr(end+delimiter.length(), keyval.find(delimiter, end +delimiter.length())));
-
-
-			EventInfo eventInfo;
-			eventInfo.m_code = code;
+				int code= StringToInt(keyval.substr(end+delimiter.length(), keyval.find(delimiter, end +delimiter.length())));
+				eventInfo.m_code = code;
 			}
 			bind->BindEvent(type, eventInfo);
 		}
 
-		if (!AddBinding(bind)){ delete bind; }
+		if(!AddBinding(bind)){ delete bind; }
 		bind = nullptr;
 	}
 	bindings.close();
 }
-
-
 // Handmade Function: replacing stoi function, incompatible with GCC.
 int EventManager::StringToInt(std::string key) {
 	int result=0;

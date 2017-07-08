@@ -26,7 +26,7 @@ private:
 	TextureManager m_textureManager;
 	FontManager m_fontManager;
 	SystemManager m_systemManager;
-	Entity_Manager m_entityManager;
+	EntityManager m_entityManager;
 	GUI_Manager m_guiManager;
 	StateManager m_stateManager;
 };

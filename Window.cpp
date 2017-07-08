@@ -18,7 +18,7 @@ void Window::Setup(const std::string& title, const sf::Vector2u& size){
 	m_isFocused = true;
 
 	m_eventManager.AddCallback(StateType(0),"Fullscreen_toggle",&Window::ToggleFullscreen,this);
-	m_eventManager.AddCallback(StateType(0),"Window_close", &Window::Close, this);
+	m_eventManager.AddCallback(StateType(0),"Window_close",&Window::Close,this);
 
 	Create();
 }
@@ -40,6 +40,13 @@ bool Window::IsFocused(){ return m_isFocused; }
 sf::RenderWindow* Window::GetRenderWindow(){ return &m_window; }
 EventManager* Window::GetEventManager(){ return &m_eventManager; }
 sf::Vector2u Window::GetWindowSize(){ return m_windowSize; }
+sf::FloatRect Window::GetViewSpace(){
+	sf::Vector2f viewCenter(m_window.getView().getCenter());
+	sf::Vector2f viewSize(m_window.getView().getSize());
+	sf::Vector2f viewSizeHalf(viewSize.x / 2, viewSize.y / 2);
+	sf::FloatRect viewSpace(viewCenter - viewSizeHalf, viewSize);
+	return viewSpace;
+}
 
 void Window::ToggleFullscreen(EventDetails* l_details){
 	m_isFullscreen = !m_isFullscreen;
@@ -59,12 +66,4 @@ void Window::Update(){
 	}
 
 	m_eventManager.Update();
-}
-
-sf::FloatRect Window::GetViewSpace() {
-    sf::Vector2f viewCenter=m_window.getView().getCenter();
-	sf::Vector2f viewSize= m_window.getView().getSize();
-	sf::Vector2f  viewSizeHalf(viewSize.x/2, viewSize.y/2);
-	sf::FloatRect viewSpace(viewCenter-viewSizeHalf, viewSize);
-	return viewSpace;
 }

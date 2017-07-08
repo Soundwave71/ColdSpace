@@ -8,7 +8,7 @@ State_Intro::~State_Intro(){}
 
 void State_Intro::OnCreate(){
 	sf::Vector2u windowSize = m_stateMgr->GetContext()
-			->m_wind->GetRenderWindow()->getSize();
+		->m_wind->GetRenderWindow()->getSize();
 
 	TextureManager* textureMgr = m_stateMgr->GetContext()->m_textureManager;
 	textureMgr->RequireResource("Intro");
@@ -22,44 +22,38 @@ void State_Intro::OnCreate(){
 	m_text.setCharacterSize(15);
 	sf::FloatRect textRect = m_text.getLocalBounds();
 	m_text.setOrigin(textRect.left + textRect.width / 2.0f,
-					 textRect.top + textRect.height / 2.0f);
-	m_text.setPosition(m_introSprite.getPosition().x,
-					   m_introSprite.getPosition().y + textureMgr->GetResource("Intro")->getSize().y / 1.5f);
+		textRect.top + textRect.height / 2.0f);
+	m_text.setPosition(m_introSprite.getPosition().x, 
+		m_introSprite.getPosition().y + textureMgr->GetResource("Intro")->getSize().y / 1.5f);
 
 	EventManager* evMgr = m_stateMgr->
-			GetContext()->m_eventManager;
+		GetContext()->m_eventManager;
 	evMgr->AddCallback(StateType::Intro,"Intro_Continue",
-					   &State_Intro::Continue,this);
+		&State_Intro::Continue,this);
 }
+
 void State_Intro::OnDestroy(){
 	TextureManager* textureMgr = m_stateMgr->GetContext()->m_textureManager;
 	textureMgr->ReleaseResource("Intro");
-	EventManager* evMgr = m_stateMgr->GetContext()->m_eventManager;
+
+	EventManager* evMgr = m_stateMgr->
+		GetContext()->m_eventManager;
 	evMgr->RemoveCallback(StateType::Intro,"Intro_Continue");
 }
 
-void State_Intro::Update(const sf::Time& l_time){
-	if(m_timePassed < 5.0f){ // Less than five seconds.
-		m_timePassed += l_time.asSeconds();
-		m_introSprite.setPosition(
-			m_introSprite.getPosition().x,
-			m_introSprite.getPosition().y + (48 * l_time.asSeconds()));
-	}
-}
-
 void State_Intro::Draw(){
-	sf::RenderWindow* window = m_stateMgr->GetContext()->m_wind->GetRenderWindow();
+	sf::RenderWindow* window = m_stateMgr->
+		GetContext()->m_wind->GetRenderWindow();
 
 	window->draw(m_introSprite);
 	window->draw(m_text);
-
 }
 
 void State_Intro::Continue(EventDetails* l_details){
-		m_stateMgr->SwitchTo(StateType::MainMenu);
-		m_stateMgr->Remove(StateType::Intro);
-
+	m_stateMgr->SwitchTo(StateType::MainMenu);
+	m_stateMgr->Remove(StateType::Intro);
 }
 
+void State_Intro::Update(const sf::Time& l_time){}
 void State_Intro::Activate(){}
 void State_Intro::Deactivate(){}

@@ -1,24 +1,16 @@
-//
-// Created by Leonardo on 7/1/2017.
-//
-
-#ifndef COLDSPACE_S_STATE_H
-#define COLDSPACE_S_STATE_H
-
+#pragma once
 #include "S_Base.h"
 #include "C_State.h"
 
 class S_State : public S_Base{
 public:
-    S_State(SystemManager* l_systemMgr);
-    ~S_State();
+	S_State(SystemManager* l_systemMgr);
+	~S_State();
 
-    void Update(float l_dT);
-    void HandleEvent(const EntityId& l_entity,const EntityEvent& l_event);
-    void Notify(const Message& l_message);
+	void Update(float l_dT);
+	void HandleEvent(const EntityId& l_entity,const EntityEvent& l_event);
+	void Notify(const Message& l_message);
 private:
-    void ChangeState(const EntityId& l_entity, const EntityState& l_state,
-                     const bool& l_force);
+	void ChangeState(const EntityId& l_entity, const EntityState& l_state,
+		const bool& l_force);
 };
-
-#endif //COLDSPACE_S_STATE_H

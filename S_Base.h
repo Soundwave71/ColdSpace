@@ -1,10 +1,4 @@
-//
-// Created by Leonardo on 6/29/2017.
-//
-
-#ifndef COLDSPACE_S_BASE_H
-#define COLDSPACE_S_BASE_H
-
+#pragma once
 #include <vector>
 #include "Bitmask.h"
 #include "Entity_Manager.h"
@@ -13,33 +7,30 @@
 #include "Observer.h"
 #include "ECS_Types.h"
 
-
 using EntityList = std::vector<EntityId>;
 using Requirements = std::vector<Bitmask>;
 
 class SystemManager;
 class S_Base : public Observer{
 public:
-    S_Base(const System& l_id, SystemManager* l_systemMgr);
-    virtual ~S_Base();
+	S_Base(const System& l_id, SystemManager* l_systemMgr);
+	virtual ~S_Base();
 
-    bool AddEntity(const EntityId& l_entity);
-    bool HasEntity(const EntityId& l_entity);
-    bool RemoveEntity(const EntityId& l_entity);
+	bool AddEntity(const EntityId& l_entity);
+	bool HasEntity(const EntityId& l_entity);
+	bool RemoveEntity(const EntityId& l_entity);
 
-    System GetId();
+	System GetId();
 
-    bool FitsRequirements(const Bitmask& l_bits);
-    void Purge();
+	bool FitsRequirements(const Bitmask& l_bits);
+	void Purge();
 
-    virtual void Update(float l_dT) = 0;
-    virtual void HandleEvent(const EntityId& l_entity, const EntityEvent& l_event) = 0;
+	virtual void Update(float l_dT) = 0;
+	virtual void HandleEvent(const EntityId& l_entity, const EntityEvent& l_event) = 0;
 protected:
-    System m_id;
-    Requirements m_requiredComponents;
-    EntityList m_entities;
+	System m_id;
+	Requirements m_requiredComponents;
+	EntityList m_entities;
 
-    SystemManager* m_systemManager;
+	SystemManager* m_systemManager;
 };
-
-#endif //COLDSPACE_S_BASE_H

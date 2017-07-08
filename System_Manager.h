@@ -1,10 +1,4 @@
-//
-// Created by Leonardo on 6/29/2017.
-//
-
-#ifndef COLDSPACE_SYSTEM_MANAGER_H
-#define COLDSPACE_SYSTEM_MANAGER_H
-
+#pragma once
 #include <SFML/Graphics.hpp>
 #include "Window.h"
 #include "S_Renderer.h"
@@ -19,41 +13,39 @@
 #include "DebugOverlay.h"
 
 using SystemContainer = std::unordered_map<System,S_Base*, EnumClassHash>;
-using EntityEventContainer = std::unordered_map<EntityId,EventQueue>;
+using EntityEventContainer = std::unordered_map<EntityId,EventQueue, EnumClassHash>;
 
-class Entity_Manager;
+class EntityManager;
 class SystemManager{
 public:
-    SystemManager();
-    ~SystemManager();
+	SystemManager();
+	~SystemManager();
 
-    void SetEntityManager(Entity_Manager* l_entityMgr);
-    Entity_Manager* GetEntityManager();
-    MessageHandler* GetMessageHandler();
+	void SetEntityManager(EntityManager* l_entityMgr);
+	EntityManager* GetEntityManager();
+	MessageHandler* GetMessageHandler();
 
-    template<class T>
-    T* GetSystem(const System& l_system){
-        auto itr = m_systems.find(l_system);
-        return(itr != m_systems.end() ? dynamic_cast<T*>(itr->second) : nullptr);
-    }
+	template<class T>
+	T* GetSystem(const System& l_system){
+		auto itr = m_systems.find(l_system);
+		return(itr != m_systems.end() ? dynamic_cast<T*>(itr->second) : nullptr);
+	}
+	
+	void AddEvent(const EntityId& l_entity, const EventID& l_event);
 
-    void AddEvent(const EntityId& l_entity, const EventID& l_event);
+	void Update(float l_dT);
+	void HandleEvents();
+	void Draw(Window* l_wind, unsigned int l_elevation);
 
-    void Update(float l_dT);
-    void HandleEvents();
-    void Draw(Window* l_wind, unsigned int l_elevation);
-
-    void EntityModified(const EntityId& l_entity, const Bitmask& l_bits);
-    void RemoveEntity(const EntityId& l_entity);
-
-    void PurgeEntities();
-    void PurgeSystems();
-    DebugOverlay* m_debugOverlay;
+	void EntityModified(const EntityId& l_entity, const Bitmask& l_bits);
+	void RemoveEntity(const EntityId& l_entity);
+	
+	void PurgeEntities();
+	void PurgeSystems();
+	DebugOverlay* m_debugOverlay;
 private:
-    SystemContainer m_systems;
-    Entity_Manager* m_entityManager;
-    EntityEventContainer m_events;
-    MessageHandler m_messages;
+	SystemContainer m_systems;
+	EntityManager* m_entityManager;
+	EntityEventContainer m_events;
+	MessageHandler m_messages;
 };
-
-#endif //COLDSPACE_SYSTEM_MANAGER_H

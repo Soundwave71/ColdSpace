@@ -1,9 +1,4 @@
-//
-// Created by Leonardo on 7/3/2017.
-//
-
-#ifndef COLDSPACE_FONTMANAGER_H_H
-#define COLDSPACE_FONTMANAGER_H_H
+#pragma once
 #include "ResourceManager.h"
 #include <SFML/Graphics/Font.hpp>
 
@@ -22,4 +17,3 @@ public:
 		return font;
 	}
 };
-#endif //COLDSPACE_FONTMANAGER_H_H

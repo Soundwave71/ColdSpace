@@ -1,6 +1,7 @@
 #include "StateManager.h"
+
 StateManager::StateManager(SharedContext* l_shared)
-		: m_shared(l_shared)
+	: m_shared(l_shared)
 {
 	RegisterState<State_Intro>(StateType::Intro);
 	RegisterState<State_MainMenu>(StateType::MainMenu);
@@ -61,7 +62,7 @@ SharedContext* StateManager::GetContext(){ return m_shared; }
 
 bool StateManager::HasState(const StateType& l_type){
 	for (auto itr = m_states.begin();
-		 itr != m_states.end(); ++itr)
+		itr != m_states.end(); ++itr)
 	{
 		if (itr->first == l_type){
 			auto removed = std::find(m_toRemove.begin(), m_toRemove.end(), l_type);
@@ -81,8 +82,9 @@ void StateManager::ProcessRequests(){
 
 void StateManager::SwitchTo(const StateType& l_type){
 	m_shared->m_eventManager->SetCurrentState(l_type);
+	m_shared->m_guiManager->SetCurrentState(l_type); // new
 	for (auto itr = m_states.begin();
-		 itr != m_states.end(); ++itr)
+		itr != m_states.end(); ++itr)
 	{
 		if (itr->first == l_type){
 			m_states.back().second->Deactivate();
@@ -120,7 +122,7 @@ void StateManager::CreateState(const StateType& l_type){
 
 void StateManager::RemoveState(const StateType& l_type){
 	for (auto itr = m_states.begin();
-		 itr != m_states.end(); ++itr)
+		itr != m_states.end(); ++itr)
 	{
 		if (itr->first == l_type){
 			itr->second->OnDestroy();

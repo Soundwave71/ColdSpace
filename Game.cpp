@@ -1,8 +1,8 @@
 #include "Game.h"
 
 Game::Game() : m_window("Chapter 11", sf::Vector2u(800, 600)),
-			   m_entityManager(&m_systemManager, &m_textureManager), m_stateManager(&m_context),
-			   m_guiManager(m_window.GetEventManager(), &m_context)
+	m_entityManager(&m_systemManager, &m_textureManager), m_stateManager(&m_context),
+	m_guiManager(m_window.GetEventManager(), &m_context)
 {
 	m_clock.restart();
 	srand(time(nullptr));
@@ -19,13 +19,13 @@ Game::Game() : m_window("Chapter 11", sf::Vector2u(800, 600)),
 
 	// Debug:
 	m_systemManager.m_debugOverlay = &m_context.m_debugOverlay;
-	m_fontManager.RequireResource("Main");
+	m_fontManager.RequireResource("Main"); // new
 
 	m_stateManager.SwitchTo(StateType::Intro);
 }
 
-Game::~Game(){
-	m_fontManager.ReleaseResource("Main");
+Game::~Game(){ 
+	m_fontManager.ReleaseResource("Main"); // new
 }
 
 sf::Time Game::GetElapsed(){ return m_clock.getElapsedTime(); }
