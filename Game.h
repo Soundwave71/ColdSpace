@@ -29,4 +29,6 @@ private:
 	EntityManager m_entityManager;
 	GUI_Manager m_guiManager;
 	StateManager m_stateManager;
+	AudioManager m_audioManager;
+	SoundManager m_soundManager;
 };

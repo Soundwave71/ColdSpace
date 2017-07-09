@@ -11,6 +11,8 @@
 #include <unordered_map>
 #include <vector>
 #include <functional>
+#include "C_SoundEmitter.h"
+#include "C_SoundListener.h"
 
 using EntityId = unsigned int;
 

@@ -1,9 +1,9 @@
 #include "Entity_Manager.h"
 #include "System_Manager.h"
 
-EntityManager::EntityManager(SystemManager* l_sysMgr, 
-	TextureManager* l_textureMgr): m_idCounter(0), 
-	m_systems(l_sysMgr), m_textureManager(l_textureMgr)
+EntityManager::EntityManager(SystemManager* l_sysMgr,
+							 TextureManager* l_textureMgr): m_idCounter(0),
+															m_systems(l_sysMgr), m_textureManager(l_textureMgr)
 {
 	AddComponentType<C_Position>(Component::Position);
 	AddComponentType<C_SpriteSheet>(Component::SpriteSheet);
@@ -11,6 +11,8 @@ EntityManager::EntityManager(SystemManager* l_sysMgr,
 	AddComponentType<C_Movable>(Component::Movable);
 	AddComponentType<C_Controller>(Component::Controller);
 	AddComponentType<C_Collidable>(Component::Collidable);
+	AddComponentType<C_SoundEmitter>(Component::SoundEmitter);
+	AddComponentType<C_SoundListener>(Component::SoundListener);
 }
 
 EntityManager::~EntityManager(){ Purge(); }
@@ -45,7 +47,7 @@ int EntityManager::AddEntity(const std::string& l_entityFile){
 		std::string type;
 		keystream >> type;
 		if(type == "Name"){
-			
+
 		} else if(type == "Attributes"){
 			if (EntityId != -1){ continue; }
 			Bitset set = 0;
@@ -110,7 +112,7 @@ bool EntityManager::RemoveComponent(const EntityId& l_entity, const Component& l
 	// Component exists.
 	auto& container = itr->second.second;
 	auto component = std::find_if(container.begin(), container.end(),
-		[&l_component](C_Base* c){ return c->GetType() == l_component; });
+								  [&l_component](C_Base* c){ return c->GetType() == l_component; });
 	if (component == container.end()){ return false; }
 	delete (*component);
 	container.erase(component);
