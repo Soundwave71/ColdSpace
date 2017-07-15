@@ -54,6 +54,7 @@ using TileSet = std::unordered_map<TileID, TileInfo*>;
 
 class Map{
 public:
+
 	Map(SharedContext* l_context);
 	~Map();
 
@@ -64,11 +65,13 @@ public:
 	const sf::Vector2u& GetMapSize()const;
 	const sf::Vector2f& GetPlayerStart()const;
 	int GetPlayerId()const;
+	const TileMap* GetTileMap() const;
 
 	void LoadMap(const std::string& l_path);
 
 	void Update(float l_dT);
 	void Draw(unsigned int l_layer);
+
 private:
 	// Method for converting 2D coordinates to 1D ints.
 	unsigned int ConvertCoords(unsigned int l_x, unsigned int l_y, unsigned int l_layer)const;
@@ -83,7 +86,7 @@ private:
 
 	TileInfo m_defaultTile;
 
-	sf::Vector2u m_maxMapSize;
+	sf::Vector2u m_maxMapSize;;
 	sf::Vector2f m_playerStart;
 	int m_playerId;
 	unsigned int m_tileCount;

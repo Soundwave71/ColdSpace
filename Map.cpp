@@ -178,3 +178,7 @@ void Map::PurgeTileSet(){
 	}
 	m_tileSetCount = 0;
 }
+
+const TileMap* Map::GetTileMap() const {
+    return &m_tileMap;
+}

@@ -42,7 +42,7 @@ void S_Collision::EntityCollisions(){
 			C_Collidable* collidable2 = entities->GetComponent<C_Collidable>(*itr2, Component::Collidable);
 			if(collidable1->GetCollidable().intersects(collidable2->GetCollidable()))
 			{
-				// Entity-on-entity collision!
+				//TODO Entity-on-entity collision!
 			}
 		}
 	}

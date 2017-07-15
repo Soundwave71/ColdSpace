@@ -28,6 +28,11 @@ void State_Game::OnCreate(){
 	EntityManager* entities = m_stateMgr->GetContext()->m_entityManager;
 	m_stateMgr->GetContext()->m_systemManager->GetSystem<S_Collision>(System::Collision)->SetMap(m_gameMap);
 	m_stateMgr->GetContext()->m_systemManager->GetSystem<S_Movement>(System::Movement)->SetMap(m_gameMap);
+
+	////
+	m_stateMgr->GetContext()->m_systemManager->GetSystem<S_Control>(System::Control)->GetPathfinder()->SetMapGrid(m_gameMap);
+	////
+
 	m_player = m_gameMap->GetPlayerId();
 
 	GUI_Manager* gui = m_stateMgr->GetContext()->m_guiManager;
