@@ -4,9 +4,7 @@
 
 #include <cmath>
 #include "PathKeeper.h"
-
-PathKeeper::PathKeeper(): m_slowingRadius(32) {}
-
+#include "Map.h"
 PathKeeper::~PathKeeper() {}
 
 sf::Vector2f PathKeeper::Seek(C_Movable *l_movable, C_Position *l_position, sf::Vector2f target) {
@@ -25,26 +23,37 @@ sf::Vector2f PathKeeper::Seek(C_Movable *l_movable, C_Position *l_position, sf::
 }
 
 std::pair<sf::Vector2f,bool> PathKeeper::CheckRoute(C_Position* l_position ,EntityRoute* route) {
-    sf::Vector2f position=l_position->GetPosition();
-    sf::Vector2f newtarget= route->back();
-    bool arrival= (route->size()==1);
-    sf::Vector2f distance=newtarget-position;
-    float length = sqrt((distance.x * distance.x) + (distance.y *distance.y));
 
-    if(length<5)
+    if(route->empty())
     {
-        if(!arrival)
-        {
-            route->pop_back();
-            newtarget= route->back();
-            return std::pair<sf::Vector2f,bool>(newtarget, arrival);
-        }
-        else
-        {
-            return std::pair<sf::Vector2f,bool>(newtarget, arrival);
-        }
+        return std::pair<sf::Vector2f, bool>(sf::Vector2f(-1000, -1000), false);
     }
-    return std::pair<sf::Vector2f,bool>(newtarget, arrival);
+    else
+    {
+        sf::Vector2f position = l_position->GetPosition();
+        sf::Vector2f newtarget = route->back();
+        bool arrival = (route->size() == 1);
+        sf::Vector2f distance = newtarget - position;
+        float length = sqrt((distance.x * distance.x) + (distance.y * distance.y));
+
+        if (length < 5)
+        {
+            if (!arrival)
+            {
+                route->pop_back();
+                newtarget = route->back();
+                return std::pair<sf::Vector2f, bool>(newtarget, arrival);
+            }
+            else
+            {
+                if(length<2){
+                    route->pop_back();
+                }
+                return std::pair<sf::Vector2f, bool>(newtarget, arrival);
+            }
+        }
+        return std::pair<sf::Vector2f, bool>(newtarget, arrival);
+    }
 }
 
 sf::Vector2f PathKeeper::Arrival(C_Movable *l_movable, C_Position *l_position, sf::Vector2f target) {
@@ -66,6 +75,29 @@ sf::Vector2f PathKeeper::Arrival(C_Movable *l_movable, C_Position *l_position, s
         steering.y=(steering.y / length)*l_movable->GetMaxVelocity();
         return steering;
     }
+}
+
+bool PathKeeper::CollideCheck(C_Movable *l_movable,C_Position* l_position) {
+    sf::Vector2f ahead=CalculateAhead(l_movable, l_position);
+    sf::Vector2u aheadCoords= sf::Vector2u(ahead.x/m_gamemap->GetTileSize(), ahead.y/m_gamemap->GetTileSize());
+    return m_gamemap->GetTile(aheadCoords.x,aheadCoords.y,1)->m_solid;
+}
+
+sf::Vector2f PathKeeper::Avoidance(C_Movable *l_movable, C_Position *l_position) {
+    sf::Vector2f ahead=CalculateAhead(l_movable,l_position);
+    sf::Vector2u objectCoords= sf::Vector2u(ahead.x/m_gamemap->GetTileSize(), ahead.y/m_gamemap->GetTileSize());
+    objectCoords=sf::Vector2u(objectCoords.x*32, objectCoords.y*32)+sf::Vector2u(16,16);
+    sf::Vector2f avoidance=ahead-sf::Vector2f(objectCoords);
+    avoidance= (avoidance/(float)(sqrt((avoidance.x*avoidance.x)+(avoidance.y*avoidance.y))))*m_avoidanceForce;
+    return avoidance;
+}
+
+sf::Vector2f PathKeeper::CalculateAhead(C_Movable *l_movable, C_Position *l_position) {
+    float velocity_length=sqrt(l_movable->GetVelocity().x *l_movable->GetVelocity().x)+(l_movable->GetVelocity().y *l_movable->GetVelocity().y );
+    float dynamic_length=velocity_length/l_movable->GetMaxVelocity();
+    sf::Vector2f normalized_velocity=l_movable->GetVelocity()/velocity_length;
+    sf::Vector2f ahead=l_position->GetPosition()+ normalized_velocity*dynamic_length;;
+    return ahead;
 }
 
 

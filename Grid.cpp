@@ -5,7 +5,8 @@
 #include "Map.h"
 
 void Grid::SetupGrid(Map *gamemap) {
-        const TileMap* tilemap=m_gamemap->GetTileMap();
+    m_gamemap=gamemap;
+    const TileMap* tilemap=gamemap->GetTileMap();
         for(auto itr=tilemap->begin(); itr!= tilemap->end(); itr++)
         {
             Node tempNode(itr->first,itr->second->m_solid);

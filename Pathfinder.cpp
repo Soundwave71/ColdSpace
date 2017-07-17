@@ -16,7 +16,7 @@ sf::Vector2f Pathfinder::DestinationRandomizer() {
     sf::Vector2f target;
     target.x=rand() % (mapx-1);
     target.y=rand() % (mapy-1);
-    while(m_gamemap->GetTile(target.x,target.y,1)->m_solid){
+    while(m_grid.m_gamemap->GetTile(target.x,target.y,1)->m_solid){
         target.x=rand() % (mapx-1);
         target.y=rand() % (mapy-1);
     }
@@ -119,6 +119,8 @@ void Pathfinder::CheckNeighbours(Node *currentNode, Node* targetNode) {
                    tempNode->ComputeCost(targetNode, currentNode, i>=4);
                }
             }
+            else if(tempNode->IsSolid())
+                m_closed.emplace_back(tempNode);
 
         }
         newcoords-=m_directions[i];

@@ -13,14 +13,20 @@
 
 class PathKeeper {
 public:
-    PathKeeper();
+    PathKeeper(Map* gamemap):m_gamemap(gamemap),m_slowingRadius(32), m_avoidanceForce(100){} ;
     ~PathKeeper();
 
     sf::Vector2f Seek(C_Movable* l_movable, C_Position* l_position, sf::Vector2f target);
     std::pair<sf::Vector2f,bool> CheckRoute( C_Position* l_position,EntityRoute* route);
     sf::Vector2f Arrival(C_Movable* l_movable, C_Position* l_position, sf::Vector2f target);
+    sf::Vector2f CalculateAhead (C_Movable* l_movable,C_Position* l_position);
+    bool CollideCheck(C_Movable* l_movable,C_Position* l_position );
+    sf::Vector2f Avoidance(C_Movable* l_movable,C_Position* l_position);
+
 private:
     unsigned int m_slowingRadius;
+    float m_avoidanceForce;
+    Map* m_gamemap;
 };
 
 

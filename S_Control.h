@@ -20,4 +20,5 @@ private:
 	RouterList m_routerList;
 	Pathfinder m_pathfinder;
 	PathKeeper m_pathKeeper;
+	float m_timer;
 };
