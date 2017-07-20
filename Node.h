@@ -46,6 +46,22 @@ struct Node{
         m_fCost=0;
         m_visited=false;
         m_coords={-1,-1};
+        m_leash=nullptr;
+    }
+
+    bool operator==(const Node &rhs) const {
+        return m_visited == rhs.m_visited &&
+               m_ID == rhs.m_ID &&
+               m_coords == rhs.m_coords &&
+               m_isSolid == rhs.m_isSolid &&
+               m_gCost == rhs.m_gCost &&
+               m_hCost == rhs.m_hCost &&
+               m_fCost == rhs.m_fCost &&
+               m_leash == rhs.m_leash;
+    }
+
+    bool operator!=(const Node &rhs) const {
+        return !(rhs == *this);
     }
 
     bool m_visited;

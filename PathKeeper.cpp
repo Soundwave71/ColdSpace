@@ -18,11 +18,18 @@ sf::Vector2f PathKeeper::Seek(C_Movable *l_movable, C_Position *l_position, sf::
     {
         steering.x=(steering.x / length)*l_movable->GetMaxVelocity();
         steering.y=(steering.y / length)*l_movable->GetMaxVelocity();
+        if(std::abs(steering.x) > l_movable->GetMaxVelocity()/2){
+            steering.x = (l_movable->GetMaxVelocity()/2) * (steering.x / std::abs(steering.x));
+        }
+
+        if(std::abs(steering.y) > l_movable->GetMaxVelocity()/2){
+            steering.y =(l_movable->GetMaxVelocity()/2) * (steering.y / std::abs(steering.y));
+        }
         return steering;
     }
 }
 
-std::pair<sf::Vector2f,bool> PathKeeper::CheckRoute(C_Position* l_position ,EntityRoute* route) {
+std::pair<sf::Vector2f,bool> PathKeeper::CheckRoute(C_Position* l_position ,std::vector<sf::Vector2f>* route) {
 
     if(route->empty())
     {
@@ -36,7 +43,7 @@ std::pair<sf::Vector2f,bool> PathKeeper::CheckRoute(C_Position* l_position ,Enti
         sf::Vector2f distance = newtarget - position;
         float length = sqrt((distance.x * distance.x) + (distance.y * distance.y));
 
-        if (length < 5)
+        if (length < 20)
         {
             if (!arrival)
             {
@@ -46,7 +53,7 @@ std::pair<sf::Vector2f,bool> PathKeeper::CheckRoute(C_Position* l_position ,Enti
             }
             else
             {
-                if(length<2){
+                if(length<18){
                     route->pop_back();
                 }
                 return std::pair<sf::Vector2f, bool>(newtarget, arrival);
@@ -76,6 +83,7 @@ sf::Vector2f PathKeeper::Arrival(C_Movable *l_movable, C_Position *l_position, s
         return steering;
     }
 }
+
 
 bool PathKeeper::CollideCheck(C_Movable *l_movable,C_Position* l_position) {
     sf::Vector2f ahead=CalculateAhead(l_movable, l_position);

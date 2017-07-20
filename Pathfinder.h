@@ -13,7 +13,6 @@
 class Map;
 
 using Directions= std::array<sf::Vector2f,8>;
-using EntityRoute = std::vector<sf::Vector2f>;
 
 
 class Pathfinder {
@@ -25,11 +24,12 @@ public:
 
     sf::Vector2f DestinationRandomizer();
 
-    EntityRoute Astar(sf::Vector2f start, sf::Vector2f target);
+    std::vector<sf::Vector2f> Astar(sf::Vector2f start, sf::Vector2f target);
     void CheckNeighbours(Node* currentNode, Node* targetNode);
     Node*PopBest();
     bool IsOnClosed(Node* node);
     bool IsOnOpen(Node* node);
+    void ClearRoute(){route.clear();};
 
 private:
     std::vector<Node*>m_open;
@@ -38,6 +38,7 @@ private:
     Grid m_grid;
     Map* m_gamemap;
     void ResetGrid();
+    std::vector<sf::Vector2f> route;
 };
 
 

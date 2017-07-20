@@ -3,7 +3,7 @@
 #include "Pathfinder.h"
 #include "PathKeeper.h"
 
-using RouterList= std::unordered_map<EntityId,EntityRoute>;
+using RouterList= std::unordered_map<EntityId,std::vector<sf::Vector2f>>;
 
 class S_Control : public S_Base{
 public:
@@ -14,6 +14,7 @@ public:
 	void HandleEvent(const EntityId& l_entity,const EntityEvent& l_event);
 	void Notify(const Message& l_message);
 	Pathfinder * GetPathfinder(){return &m_pathfinder;};
+	PathKeeper* GetPathKeeper(){return &m_pathKeeper;};
 
 private:
 	void MoveEntity(const EntityId& l_entity, const Direction& l_dir);

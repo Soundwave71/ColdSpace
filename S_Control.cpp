@@ -2,7 +2,7 @@
 #include "System_Manager.h"
 
 S_Control::S_Control(SystemManager* l_systemMgr)
-	: S_Base(System::Control,l_systemMgr), m_pathKeeper(m_systemManager->GetSystem<S_Movement>(System::Movement)->GetMap())
+	: S_Base(System::Control,l_systemMgr)
 {
 	Bitmask req;
 	req.TurnOnBit((unsigned int)Component::Position);
@@ -10,6 +10,7 @@ S_Control::S_Control(SystemManager* l_systemMgr)
 	req.TurnOnBit((unsigned int)Component::Controller);
 	m_requiredComponents.push_back(req);
 	req.Clear();
+    m_timer=0.0f;
 }
 
 S_Control::~S_Control(){}
@@ -21,6 +22,7 @@ void S_Control::Update(float l_dT) {
     C_Position* position;
     C_SpriteSheet* sheet;
     C_State * state;
+
     for (auto entity = m_routerList.begin(); entity != m_routerList.end(); entity++)
 	{
         //setting up
@@ -34,48 +36,90 @@ void S_Control::Update(float l_dT) {
         //check current position and nodes to reach
         target=m_pathKeeper.CheckRoute(position, &(entity->second));
 
-        if(target.first!=sf::Vector2f(-1000,-1000)) {
+        if(target.first!=sf::Vector2f(-1000,-1000))
+        {
+            Message msg((MessageType)EntityMessage::Move);
+            msg.m_receiver=ID;
+
             if(target.second) //Last Node -> Arrival().
             {
                 velocity= m_pathKeeper.Arrival(movable, position, target.first);
                 movable->AddVelocity(velocity);
                 if(m_pathKeeper.CollideCheck(movable,position))
                     movable->AddVelocity(m_pathKeeper.Avoidance(movable, position));
-                if(movable->GetVelocity().x>0){event=EntityEvent::Moving_Right;}
-                if(movable->GetVelocity().x<0){event=EntityEvent::Moving_Left;}
-                if(movable->GetVelocity().x==0 && movable->GetVelocity().y<0){event=EntityEvent::Moving_Up;}
-                if(movable->GetVelocity().x==0 && movable->GetVelocity().y>0){event=EntityEvent::Moving_Down;}
-                m_systemManager->AddEvent(ID, (EventID)event);
-                sheet->GetSpriteSheet()->SetAnimation("Walk",true, true);
+
+                if(movable->GetVelocity().x>0)
+                {
+                    msg.m_int = (int) Direction::Right;
+                    m_systemManager->GetMessageHandler()->Dispatch(msg);
+                }
+                else if(movable->GetVelocity().x<0)
+                {
+                    msg.m_int =(int) Direction::Left;
+                    m_systemManager->GetMessageHandler()->Dispatch(msg);
+                }
+                else if(movable->GetVelocity().x==0 && movable->GetVelocity().y<0)
+                {
+                    msg.m_int =(int) Direction::Up;
+                    m_systemManager->GetMessageHandler()->Dispatch(msg);
+                }
+                else if(movable->GetVelocity().x==0 && movable->GetVelocity().y>0)
+                {
+                    msg.m_int =(int) Direction::Down;
+                    m_systemManager->GetMessageHandler()->Dispatch(msg);
+                }
+
+
+
             }
             else //Common Node-> Seek().
             {
                 velocity=m_pathKeeper.Seek(movable, position, target.first);
                 movable->AddVelocity(velocity);
-                if(m_pathKeeper.CollideCheck(movable,position))
+
+               if(m_pathKeeper.CollideCheck(movable,position))
                     movable->AddVelocity(m_pathKeeper.Avoidance(movable, position));
-                if(movable->GetVelocity().x>0){event=EntityEvent::Moving_Right;}
-                if(movable->GetVelocity().x<0){event=EntityEvent::Moving_Left;}
-                if(movable->GetVelocity().x==0 && movable->GetVelocity().y<0){event=EntityEvent::Moving_Up;}
-                if(movable->GetVelocity().x==0 && movable->GetVelocity().y>0){event=EntityEvent::Moving_Down;}
-                m_systemManager->AddEvent(ID, (EventID)event);
-                sheet->GetSpriteSheet()->SetAnimation("Walk",true, true);
+
+                if(movable->GetVelocity().x>0)
+                {
+                    msg.m_int = (int) Direction::Right;
+                    m_systemManager->GetMessageHandler()->Dispatch(msg);
+                }
+                else if(movable->GetVelocity().x<0)
+                {
+                    msg.m_int =(int) Direction::Left;
+                    m_systemManager->GetMessageHandler()->Dispatch(msg);
+                }
+                else if(movable->GetVelocity().x==0 && movable->GetVelocity().y<0)
+                {
+                    msg.m_int =(int) Direction::Up;
+                    m_systemManager->GetMessageHandler()->Dispatch(msg);
+                }
+                else if(movable->GetVelocity().x==0 && movable->GetVelocity().y>0)
+                {
+                    msg.m_int =(int) Direction::Down;
+                    m_systemManager->GetMessageHandler()->Dispatch(msg);
+                }
+
+
+
             }
         }
         else //Recalculate destination.
         {
-            state=m_systemManager->GetEntityManager()->GetComponent<C_State>(ID, Component::State);
-            if(state->GetState()==EntityState::Walking)
-                sheet->GetSpriteSheet()->SetAnimation("Idle",true,true);
             if(m_timer > 5.0f)
             {
                 sf::Vector2f randomTarget= m_pathfinder.DestinationRandomizer();
-                entity->second=m_pathfinder.Astar(position->GetPosition(),randomTarget);
+                std::cout << randomTarget.x << " " << randomTarget.y << std::endl;
+                std::vector<sf::Vector2f> tempvector(m_pathfinder.Astar(position->GetPosition(),randomTarget));
+                m_pathfinder.ClearRoute();
+                entity->second.swap(tempvector);
                 m_timer=0;
             }
             else
             {
                 m_timer += l_dT;
+
             }
         }
 	}
@@ -89,9 +133,12 @@ void S_Control::HandleEvent(const EntityId& l_entity,
 
 				/////
 			case EntityEvent::Spawned:
-				sf::Vector2f randomTarget= m_pathfinder.DestinationRandomizer();
-				m_routerList.emplace(l_entity,m_pathfinder.Astar(m_systemManager->GetEntityManager()->GetComponent<C_Position>(l_entity,Component::Position)->GetPosition(),randomTarget));
-				break;
+
+                    sf::Vector2f randomTarget = m_pathfinder.DestinationRandomizer();
+                    std::cout << randomTarget.x << " " << randomTarget.y << std::endl;
+                    m_routerList.emplace(l_entity, m_pathfinder.Astar(m_systemManager->GetEntityManager()->GetComponent<C_Position>(l_entity, Component::Position)->GetPosition(), randomTarget));
+                    m_pathfinder.ClearRoute();
+                break;
 				/////
 		}
 	} else if (m_systemManager->GetEntityManager()->GetComponent<C_Controller>(l_entity, Component::Controller)->GetControlType() == 1){
