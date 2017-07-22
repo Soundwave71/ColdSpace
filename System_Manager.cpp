@@ -79,20 +79,24 @@ void SystemManager::EntityModified(const EntityId& l_entity, const Bitmask& l_bi
 	}
 }
 
-void SystemManager::RemoveEntity(const EntityId& l_entity){
-	for(auto &system : m_systems){
+void SystemManager::RemoveEntity(const EntityId& l_entity)
+{
+	for(auto &system : m_systems)
+	{
 		system.second->RemoveEntity(l_entity);
 	}
 }
 
 void SystemManager::PurgeEntities(){
-	for(auto &system : m_systems){
+	for(auto &system : m_systems)
+	{
 		system.second->Purge();
 	}
 }
 
 void SystemManager::PurgeSystems(){
-	for (auto &system : m_systems){
+	for (auto &system : m_systems)
+	{
 		delete system.second;
 	}
 	m_systems.clear();

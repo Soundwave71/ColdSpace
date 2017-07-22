@@ -11,6 +11,7 @@ Map::Map(SharedContext* l_context)
 Map::~Map(){
 	PurgeMap();
 	PurgeTileSet();
+    PurgeFow();
 	m_context->m_gameMap = nullptr;
 }
 
@@ -104,7 +105,14 @@ void Map::LoadMap(const std::string& l_path){
 		}
 	}
 	mapFile.close();
-	std::cout << "--- Map Loaded! ---" << std::endl;
+
+
+    /////
+    m_fow.BuildFOW(this); // TODO BUILDS FOG OF WAR. AWAITING TESTING
+    std::cout << m_fow.GetAllyFow()->size()<< " " << m_fow.GetLingeringFow()->size()<< " " << m_fow.GetEnemyFow()->size()<<std::endl;
+	/////
+
+    std::cout << "--- Map Loaded! ---" << std::endl;
 }
 
 void Map::LoadTiles(const std::string& l_path){
@@ -153,13 +161,40 @@ void Map::Draw(unsigned int l_layer){
 			sprite.setPosition(x * Sheet::Tile_Size, y * Sheet::Tile_Size);
 			l_wind->draw(sprite);
 			++count;
+
+
 		}
 	}
+    ///
+    unsigned int randomcounter=0;
+    for(int x = tileBegin.x; x <= tileEnd.x; ++x) {
+        for (int y = tileBegin.y; y <= tileEnd.y; ++y) {
+            Cell *blackcell = m_fow.GetCell(x, y, l_layer, FowMapList::Ally);
+            if(blackcell)
+            {
+                sf::Sprite& sprite = blackcell->m_sprite;
+                if (randomcounter==10)
+                    sprite.setColor(sf::Color::White);
+                sprite.setPosition(x * Sheet::Tile_Size, y * Sheet::Tile_Size);
+                l_wind->draw(sprite);
+            }
+            Cell *greycell = m_fow.GetCell(x, y, l_layer, FowMapList::Lingering);
+            if(greycell)
+            {
+                sf::Sprite& sprite = greycell->m_sprite;
+                sprite.setPosition(x * Sheet::Tile_Size, y * Sheet::Tile_Size);
+                l_wind->draw(sprite);
+            }
+
+            randomcounter++;
+        }
+    }
+    ///
 }
 
 unsigned int Map::ConvertCoords(unsigned int l_x, unsigned int l_y, unsigned int l_layer)const
 {
-	return ((l_layer*m_maxMapSize.y+l_y) * m_maxMapSize.x + l_x);
+    return ((l_layer*m_maxMapSize.y+l_y) * m_maxMapSize.x + l_x);
 }
 
 void Map::PurgeMap(){
@@ -181,4 +216,25 @@ void Map::PurgeTileSet(){
 
 const TileMap* Map::GetTileMap() const {
     return &m_tileMap;
+}
+
+void Map::PurgeFow() {
+
+    std::cout<<"Purging Ally Fog of war"<<std::endl;
+
+    while(m_fow.GetAllyFow()->begin() != m_fow.GetAllyFow()->end()){
+        delete m_fow.GetAllyFow()->begin()->second;
+        m_fow.GetAllyFow()->erase(m_fow.GetAllyFow()->begin());
+    }
+    std::cout<<"Purging Lingering Fog of war"<<std::endl;
+    while(m_fow.GetLingeringFow()->begin() != m_fow.GetLingeringFow()->end()){
+        delete m_fow.GetLingeringFow()->begin()->second;
+        m_fow.GetLingeringFow()->erase(m_fow.GetLingeringFow()->begin());
+    }
+    std::cout<<"Purging Enemy Fog of war"<<std::endl;
+    while(m_fow.GetEnemyFow()->begin() != m_fow.GetEnemyFow()->end()){
+        delete m_fow.GetEnemyFow()->begin()->second;
+        m_fow.GetEnemyFow()->erase(m_fow.GetEnemyFow()->begin());
+    }
+
 }

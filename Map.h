@@ -6,6 +6,7 @@
 #include <sstream>
 #include "Utilities.h"
 #include "SharedContext.h"
+#include "Fow.h"
 
 enum Sheet{ Tile_Size = 32, Sheet_Width = 256, Sheet_Height = 256, Num_Layers = 4 };
 using TileID = unsigned int;
@@ -66,7 +67,7 @@ public:
 	const sf::Vector2f& GetPlayerStart()const;
 	int GetPlayerId()const;
 	const TileMap* GetTileMap() const;
-
+    SharedContext* GetContext(){return m_context;};
 	void LoadMap(const std::string& l_path);
 
 	void Update(float l_dT);
@@ -80,6 +81,7 @@ private:
 
 	void PurgeMap();
 	void PurgeTileSet();
+    void PurgeFow();
 
 	TileSet m_tileSet;
 	TileMap m_tileMap;
@@ -92,4 +94,5 @@ private:
 	unsigned int m_tileCount;
 	unsigned int m_tileSetCount;
 	SharedContext* m_context;
+    Fow m_fow;
 };
