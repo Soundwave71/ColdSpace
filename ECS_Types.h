@@ -3,9 +3,10 @@ using ComponentType = unsigned int;
 #define N_COMPONENT_TYPES 32
 
 enum class Component{
-	Position = 0, SpriteSheet, State, Movable, Controller, Collidable, SoundEmitter, SoundListener
+	Position = 0, SpriteSheet, State, Movable, Controller, Collidable, SoundEmitter, SoundListener,
+	Vision
 };
 
 enum class System{
-	Renderer = 0, Movement, Collision, Control, State, SheetAnimation, Sound
+	Renderer = 0, Movement, Collision, Control, State, SheetAnimation, Sound, Vision
 };

@@ -1,6 +1,5 @@
 #include "System_Manager.h"
-#include "Entity_Manager.h"
-#include "S_Sound.h"
+
 
 SystemManager::SystemManager(): m_entityManager(nullptr){
 	m_systems[System::State] = new S_State(this);
@@ -10,6 +9,7 @@ SystemManager::SystemManager(): m_entityManager(nullptr){
 	m_systems[System::SheetAnimation] = new S_SheetAnimation(this);
 	m_systems[System::Renderer] = new S_Renderer(this);
 	m_systems[System::Sound]= new S_Sound(this);
+	m_systems[System::Vision]= new S_Vision(this);
 }
 
 SystemManager::~SystemManager(){

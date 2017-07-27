@@ -108,8 +108,13 @@ void Map::LoadMap(const std::string& l_path){
 
 
     /////
+    if(!m_context->m_textureManager->RequireResource("BlackCell"))
+    std::cerr << "Cannot find BlackCell" <<std::endl;
+    if(!m_context->m_textureManager->RequireResource("GreyCell"))
+        std::cerr <<"Cannot find GreyCell"<< std::endl;
     m_fow.BuildFOW(this); // TODO BUILDS FOG OF WAR. AWAITING TESTING
     std::cout << m_fow.GetAllyFow()->size()<< " " << m_fow.GetLingeringFow()->size()<< " " << m_fow.GetEnemyFow()->size()<<std::endl;
+
 	/////
 
     std::cout << "--- Map Loaded! ---" << std::endl;
@@ -161,32 +166,37 @@ void Map::Draw(unsigned int l_layer){
 			sprite.setPosition(x * Sheet::Tile_Size, y * Sheet::Tile_Size);
 			l_wind->draw(sprite);
 			++count;
-
-
 		}
 	}
     ///
+
     unsigned int randomcounter=0;
-    for(int x = tileBegin.x; x <= tileEnd.x; ++x) {
-        for (int y = tileBegin.y; y <= tileEnd.y; ++y) {
-            Cell *blackcell = m_fow.GetCell(x, y, l_layer, FowMapList::Ally);
-            if(blackcell)
-            {
-                sf::Sprite& sprite = blackcell->m_sprite;
-                if (randomcounter==10)
-                    sprite.setColor(sf::Color::White);
-                sprite.setPosition(x * Sheet::Tile_Size, y * Sheet::Tile_Size);
-                l_wind->draw(sprite);
-            }
+    for(int x = tileBegin.x; x <= tileEnd.x; ++x)
+    {
+        for (int y = tileBegin.y; y <= tileEnd.y; ++y)
+        {
+
             Cell *greycell = m_fow.GetCell(x, y, l_layer, FowMapList::Lingering);
             if(greycell)
             {
-                sf::Sprite& sprite = greycell->m_sprite;
-                sprite.setPosition(x * Sheet::Tile_Size, y * Sheet::Tile_Size);
-                l_wind->draw(sprite);
+                if(greycell->m_visible)
+                {
+                    sf::Sprite &sprite = greycell->m_sprite;
+                    sprite.setPosition(x * Sheet::Tile_Size, y * Sheet::Tile_Size);
+                    l_wind->draw(sprite);
+                }
             }
 
-            randomcounter++;
+            Cell *blackcell = m_fow.GetCell(x, y, l_layer, FowMapList::Ally);
+            if(blackcell)
+            {
+                if (blackcell->m_visible)
+                {
+                    sf::Sprite &sprite = blackcell->m_sprite;
+                    sprite.setPosition(x * Sheet::Tile_Size, y * Sheet::Tile_Size);
+                    l_wind->draw(sprite);
+                }
+            }
         }
     }
     ///

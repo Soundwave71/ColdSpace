@@ -32,6 +32,7 @@ void State_Game::OnCreate(){
 	////
 	m_stateMgr->GetContext()->m_systemManager->GetSystem<S_Control>(System::Control)->GetPathfinder()->SetMapGrid(m_gameMap);
 	m_stateMgr->GetContext()->m_systemManager->GetSystem<S_Control>(System::Control)->GetPathKeeper()->SetPathKeeperMap(m_gameMap);
+	m_stateMgr->GetContext()->m_systemManager->GetSystem<S_Vision>(System::Vision)->SetMap(m_gameMap);
 	////
 
 	m_player = m_gameMap->GetPlayerId();

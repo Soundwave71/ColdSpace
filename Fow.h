@@ -13,8 +13,8 @@ class Map;
 struct Cell {
     Cell(bool needDraw): m_visible(true), m_needDraw(needDraw){};
 
-    void ToggleVisible(){m_visible=!m_visible;};
-
+    void Visible(){m_visible=true;};
+    void Invisible(){m_visible=false;}
     bool m_visible;
     bool m_needDraw;
     sf::Sprite m_sprite;
@@ -34,15 +34,15 @@ public:
 
     void BuildFOW(Map* gamemap);
     sf::Vector2u GetMapSize()const;
-    void ToggleVisible(CellID l_cellID, FowMapList l_mapID);
+    void ToggleVisibleOn(CellID l_cellID, FowMapList l_mapID);
+    void ToggleVisibleOff(CellID l_cellID, FowMapList l_mapID);
     Cell* GetCell(unsigned int l_x, unsigned int l_y, unsigned int l_layer, FowMapList l_mapID);
     FowMap* GetAllyFow(){return &m_FOW;};
     FowMap* GetLingeringFow(){return &m_lingeringFOW;};
     FowMap* GetEnemyFow(){return &m_enemyFOW;};
-
-private:
     unsigned int ConvertCoords(unsigned int l_x, unsigned int l_y, unsigned int l_layer)const;
-    sf::Vector2u ConvertPixelCoords(sf::Vector2f coords) const;
+private:
+
 
     FowMap m_FOW;
     FowMap m_lingeringFOW;

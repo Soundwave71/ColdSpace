@@ -11,6 +11,7 @@ S_Control::S_Control(SystemManager* l_systemMgr)
 	m_requiredComponents.push_back(req);
 	req.Clear();
     m_timer=0.0f;
+    m_systemManager->GetMessageHandler()->Subscribe(EntityMessage::Target_Detected,this);
 }
 
 S_Control::~S_Control(){}
@@ -105,7 +106,7 @@ void S_Control::Update(float l_dT) {
 
             }
         }
-        else //Recalculate destination.
+        else //Recalculate destination in searching_Mode
         {
             if(m_timer > 5.0f)
             {
@@ -132,13 +133,23 @@ void S_Control::HandleEvent(const EntityId& l_entity,
 		switch (l_event) {
 
 				/////
-			case EntityEvent::Spawned:
-
+            case EntityEvent::Spawned:
+                // Start searching mode
                     sf::Vector2f randomTarget = m_pathfinder.DestinationRandomizer();
                     std::cout << randomTarget.x << " " << randomTarget.y << std::endl;
                     m_routerList.emplace(l_entity, m_pathfinder.Astar(m_systemManager->GetEntityManager()->GetComponent<C_Position>(l_entity, Component::Position)->GetPosition(), randomTarget));
                     m_pathfinder.ClearRoute();
                 break;
+                //TODO attack-follow order
+                /*
+            case EntityEvent::Target_Detected:
+                    break;
+                */
+                //TODO remove entity from routerlist if DESPAWNED
+                /*
+            case EntityEvent ::Despawned;
+                break;
+                */
 				/////
 		}
 	} else if (m_systemManager->GetEntityManager()->GetComponent<C_Controller>(l_entity, Component::Controller)->GetControlType() == 1){
@@ -155,11 +166,31 @@ void S_Control::HandleEvent(const EntityId& l_entity,
 			case EntityEvent::Moving_Down:
 				MoveEntity(l_entity, Direction::Down);
 				break;
-		}
+                //TODO attack-follow order
+            /*
+            case EntityEvent::Target_Detected:
+                break;
+            */
+        }
 	}
 }
 
-void S_Control::Notify(const Message& l_message){}
+//TODO finish Notifier
+void S_Control::Notify(const Message& l_message){
+    /*EntityManager* eMgr = m_systemManager->GetEntityManager();
+    EntityMessage m = (EntityMessage)l_message.m_type;
+    switch(m){
+        case EntityMessage::Target_Detected:
+        {
+            if (!HasEntity(l_message.m_receiver)){ return; }
+            C_Movable* movable = eMgr->GetComponent<C_Movable>
+                    (l_message.m_receiver, Component::Movable);
+            if (movable->GetVelocity() != sf::Vector2f(0.0f, 0.0f)){ return; }
+            m_systemManager->AddEvent(l_message.m_receiver,(EventID)EntityEvent::Target_Detected);
+        }
+            break;
+    }*/
+}
 
 void S_Control::MoveEntity(const EntityId& l_entity, 
 	const Direction& l_dir)

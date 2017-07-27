@@ -12,7 +12,7 @@ void Fow::BuildFOW(Map* gamemap) {
     {
         for (int j = 0; j < GetMapSize().y; j++)
         {
-            sf::Vector2u coords = sf::Vector2u(m_gamemap->GetTileSize() * i, m_gamemap->GetTileSize() * j);
+            sf::Vector2u coords = sf::Vector2u( i, j);
             CellID blackID = ConvertCoords(coords.x, coords.y, 4);
             CellID greyID = ConvertCoords(coords.x, coords.y, 3);
             CellID invisibleID = blackID;
@@ -35,19 +35,15 @@ unsigned int Fow::ConvertCoords(unsigned int l_x, unsigned int l_y, unsigned int
     return ((l_layer*GetMapSize().y+l_y) * GetMapSize().x + l_x);
 }
 
-sf::Vector2u Fow::ConvertPixelCoords(sf::Vector2f coords) const {
-    return sf::Vector2u((unsigned int)(coords.x/32),(unsigned int)(coords.y/32));
-}
-
 sf::Vector2u Fow::GetMapSize() const
 {
     return m_gamemap->GetMapSize();
 }
 
-void Fow::ToggleVisible(CellID l_cellID, FowMapList l_mapID) {
+void Fow::ToggleVisibleOn(CellID l_cellID, FowMapList l_mapID) {
     if ((unsigned int) l_mapID == 0) {
         auto itr = m_FOW.find(l_cellID);
-        itr->second->ToggleVisible();
+        itr->second->Visible();
         if (itr == m_FOW.end())
         {
             std::cerr << "Cell n*"<< l_cellID << " not found!";
@@ -57,7 +53,7 @@ void Fow::ToggleVisible(CellID l_cellID, FowMapList l_mapID) {
     else if ((unsigned int) l_mapID ==1)
     {
         auto itr = m_lingeringFOW.find(l_cellID);
-        itr->second->ToggleVisible();
+        itr->second->Visible();
         if (itr == m_lingeringFOW.end())
         {
             std::cerr << "Cell n*"<< l_cellID << " not found!";
@@ -67,7 +63,39 @@ void Fow::ToggleVisible(CellID l_cellID, FowMapList l_mapID) {
     else
     {
         auto itr = m_enemyFOW.find(l_cellID);
-        itr->second->ToggleVisible();
+        itr->second->Visible();
+        if (itr == m_enemyFOW.end())
+        {
+            std::cerr << "Cell n*"<< l_cellID << " not found!";
+            return;
+        }
+    }
+}
+
+void Fow::ToggleVisibleOff(CellID l_cellID, FowMapList l_mapID) {
+    if ((unsigned int) l_mapID == 0) {
+        auto itr = m_FOW.find(l_cellID);
+        itr->second->Invisible();
+        if (itr == m_FOW.end())
+        {
+            std::cerr << "Cell n*"<< l_cellID << " not found!";
+            return;
+        }
+    }
+    else if ((unsigned int) l_mapID ==1)
+    {
+        auto itr = m_lingeringFOW.find(l_cellID);
+        itr->second->Invisible();
+        if (itr == m_lingeringFOW.end())
+        {
+            std::cerr << "Cell n*"<< l_cellID << " not found!";
+            return;
+        }
+    }
+    else
+    {
+        auto itr = m_enemyFOW.find(l_cellID);
+        itr->second->Invisible();
         if (itr == m_enemyFOW.end())
         {
             std::cerr << "Cell n*"<< l_cellID << " not found!";

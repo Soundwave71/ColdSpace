@@ -97,8 +97,8 @@ void Pathfinder::CheckNeighbours(Node *currentNode, Node* targetNode) {
     for(int i=0; i<8; i++ ) {
         newcoords += m_directions[i];
 
-        if (newcoords.x >= 0 && newcoords.x < (m_grid.m_gamemap->GetMapSize().x*m_gamemap->GetTileSize()) -  m_gamemap->GetTileSize() &&
-                newcoords.y >= 0 && newcoords.y < (m_grid.m_gamemap->GetMapSize().y*m_gamemap->GetTileSize()) - m_gamemap->GetTileSize())
+        if (newcoords.x >= 0 && newcoords.x < (m_grid.m_gamemap->GetMapSize().x*m_gamemap->GetTileSize()) &&
+                newcoords.y >= 0 && newcoords.y < (m_grid.m_gamemap->GetMapSize().y*m_gamemap->GetTileSize()))
         {
             tempNode = m_grid.GetNode(newcoords);
 

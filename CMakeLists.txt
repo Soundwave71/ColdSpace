@@ -21,7 +21,7 @@ set(SOURCE_FILES main.cpp BaseState.h EventManager.h EventManager.cpp Game.h Gam
         C_Controller.h C_Collidable.h GUI_Style.h FontManager.h GUI_Element.cpp GUI_Element.h GUI_Event.h GUI_Interface.cpp
         GUI_Interface.h fonts.cfg GUI_Manager.cpp GUI_Manager.h GUI_Scrollbar.cpp GUI_Scrollbar.h GUI_Textfield.cpp GUI_Textfield.h
         GUI_Label.cpp GUI_Label.h openal32.dll AudioManager.h SoundManager.cpp SoundManager.h SoundProps.h C_SoundEmitter.h
-        audio.cfg C_SoundListener.h S_Sound.cpp S_Sound.h Pathfinder.cpp Pathfinder.h Node.h Grid.h Grid.cpp PathKeeper.cpp PathKeeper.h Fow.cpp Fow.h)
+        audio.cfg C_SoundListener.h S_Sound.cpp S_Sound.h Pathfinder.cpp Pathfinder.h Node.h Grid.h Grid.cpp PathKeeper.cpp PathKeeper.h Fow.cpp Fow.h C_Vision.h S_Vision.cpp S_Vision.h)
 
 add_executable(ColdSpace ${SOURCE_FILES})
 target_link_libraries(ColdSpace ${SFML_LIBRARIES} shlwapi.lib)

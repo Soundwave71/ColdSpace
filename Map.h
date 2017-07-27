@@ -65,6 +65,7 @@ public:
 	unsigned int GetTileSize()const;
 	const sf::Vector2u& GetMapSize()const;
 	const sf::Vector2f& GetPlayerStart()const;
+	Fow* GetFow(){return &m_fow;};
 	int GetPlayerId()const;
 	const TileMap* GetTileMap() const;
     SharedContext* GetContext(){return m_context;};
