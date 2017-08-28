@@ -10,6 +10,9 @@ SystemManager::SystemManager(): m_entityManager(nullptr){
 	m_systems[System::Renderer] = new S_Renderer(this);
 	m_systems[System::Sound]= new S_Sound(this);
 	m_systems[System::Vision]= new S_Vision(this);
+	m_systems[System::Combat]= new S_Combat(this);
+	m_systems[System::Character_UI]= new S_Character_UI(this);
+	m_systems[System::Timers]= new  S_Timers(this);
 }
 
 SystemManager::~SystemManager(){
@@ -61,6 +64,15 @@ void SystemManager::Draw(Window* l_wind, unsigned int l_elevation)
 	if (itr == m_systems.end()){ return; }
 	S_Renderer* system = (S_Renderer*)itr->second;
 	system->Render(l_wind, l_elevation);
+    if(l_elevation==1)
+    {
+        itr = m_systems.find(System::Character_UI);
+        if (itr != m_systems.end())
+        {
+            S_Character_UI *ui = (S_Character_UI *) itr->second;
+            ui->Render(l_wind);
+        }
+    }
 }
 
 void SystemManager::EntityModified(const EntityId& l_entity, const Bitmask& l_bits)

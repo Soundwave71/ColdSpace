@@ -20,9 +20,13 @@ public:
 	void MainMenu(EventDetails* l_details);
 	void Pause(EventDetails* l_details);
 	void PlayerMove(EventDetails* l_details);
-
+	void PlayerAttack(EventDetails* l_details);
+	void Selection_Press(EventDetails* l_details);
+	void Selection_Release(EventDetails* l_details);
+	void Targeted_Move(EventDetails* l_details);
 	// Debug:
 	void ToggleOverlay(EventDetails* l_details);
+
 private:
 	void UpdateCamera();
 	Map* m_gameMap;

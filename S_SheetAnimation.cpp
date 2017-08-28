@@ -51,8 +51,13 @@ void S_SheetAnimation::Update(float l_dT){
 	}
 }
 
-void S_SheetAnimation::HandleEvent(const EntityId& l_entity,const EntityEvent& l_event){}
-
+void S_SheetAnimation::HandleEvent(const EntityId& l_entity,const EntityEvent& l_event){
+	if (!HasEntity(l_entity)){ return; }
+	if (l_event != EntityEvent::Colliding_X && l_event != EntityEvent::Colliding_Y){ return; }
+	C_SpriteSheet* sheet = m_systemManager->GetEntityManager()->GetComponent<C_SpriteSheet>(l_entity, Component::SpriteSheet);
+	if (sheet->GetSpriteSheet()->GetCurrentAnim()->GetName() != "Walk"){ return; }
+	sheet->GetSpriteSheet()->GetCurrentAnim()->SetFrame(0);
+}
 void S_SheetAnimation::Notify(const Message& l_message){
 	if(HasEntity(l_message.m_receiver)){
 		EntityMessage m = (EntityMessage)l_message.m_type;
@@ -70,10 +75,13 @@ void S_SheetAnimation::Notify(const Message& l_message){
 				case EntityState::Attacking:
 					ChangeAnimation(l_message.m_receiver,"Attack",true,false);
 					break;
-				case EntityState::Hurt: break;
-				case EntityState::Dying:
-					ChangeAnimation(l_message.m_receiver,"Death",true,false);
-					break;
+					case EntityState::Hurt:
+						// TODO this is a Placeholder animation.
+						ChangeAnimation(l_message.m_receiver, "SpellCast", true, false);
+						break;
+					case EntityState::Dying:
+						ChangeAnimation(l_message.m_receiver,"Death",true,false);
+						break;
 				}
 			}
 			break;

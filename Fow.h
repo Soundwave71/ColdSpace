@@ -41,6 +41,10 @@ public:
     FowMap* GetLingeringFow(){return &m_lingeringFOW;};
     FowMap* GetEnemyFow(){return &m_enemyFOW;};
     unsigned int ConvertCoords(unsigned int l_x, unsigned int l_y, unsigned int l_layer)const;
+
+    //debug tools
+    void VisibleFow();
+    void InvisibleFow();
 private:
 
 

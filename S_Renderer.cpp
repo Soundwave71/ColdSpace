@@ -1,5 +1,6 @@
 #include "S_Renderer.h"
 #include "System_Manager.h"
+#include "Map.h"
 
 S_Renderer::S_Renderer(SystemManager* l_systemMgr)
 	:S_Base(System::Renderer, l_systemMgr)
@@ -11,6 +12,9 @@ S_Renderer::S_Renderer(SystemManager* l_systemMgr)
 	req.Clear();
 
 	m_systemManager->GetMessageHandler()->Subscribe(EntityMessage::Direction_Changed,this);
+    m_gameMap=nullptr;
+    //debug tools
+    m_debug=false;
 }
 	
 S_Renderer::~S_Renderer(){}
@@ -52,21 +56,87 @@ void S_Renderer::Notify(const Message& l_message){
 void S_Renderer::Render(Window* l_wind, unsigned int l_layer)
 {
 	EntityManager* entities = m_systemManager->GetEntityManager();
-	for(auto &entity : m_entities){
-		C_Position* position = entities->GetComponent<C_Position>(entity, Component::Position);
-		if(position->GetElevation() < l_layer){ continue; }
-		if(position->GetElevation() > l_layer){ break; }
-		C_Drawable* drawable = nullptr;
-		if (!entities->HasComponent(entity, Component::SpriteSheet)){ continue; }
-		drawable = entities->GetComponent<C_Drawable>(entity, Component::SpriteSheet);
-		sf::FloatRect drawableBounds;
-		drawableBounds.left = position->GetPosition().x - (drawable->GetSize().x / 2);
-		drawableBounds.top = position->GetPosition().y - drawable->GetSize().y;
-		drawableBounds.width = drawable->GetSize().x;
-		drawableBounds.height = drawable->GetSize().y;
-		if (!l_wind->GetViewSpace().intersects(drawableBounds)){ continue; }
-		drawable->Draw(l_wind->GetRenderWindow());
-	}
+	for(auto &entity : m_entities) {
+        C_Position *position = entities->GetComponent<C_Position>(entity, Component::Position);
+        if (position->GetElevation() < l_layer) { continue; }
+        if (position->GetElevation() > l_layer) { break; }
+        C_Drawable *drawable = nullptr;
+        if (!entities->HasComponent(entity, Component::SpriteSheet)) { continue; }
+        drawable = entities->GetComponent<C_Drawable>(entity, Component::SpriteSheet);
+        sf::FloatRect drawableBounds;
+        drawableBounds.left = position->GetPosition().x - (drawable->GetSize().x / 2);
+        drawableBounds.top = position->GetPosition().y - drawable->GetSize().y;
+        drawableBounds.width = drawable->GetSize().x;
+        drawableBounds.height = drawable->GetSize().y;
+        if (!l_wind->GetViewSpace().intersects(drawableBounds)) { continue; }
+        drawable->Draw(l_wind->GetRenderWindow());
+
+        ///Drawing selection rectangle if mouse pressed
+        MouseControl* mouseControl= m_systemManager->GetSystem<S_Control>(System::Control)->GetMouseControl();
+        if (mouseControl->IsMousePressed()) {
+            sf::RenderWindow* renderer=l_wind->GetRenderWindow();
+            sf::Vector2f m_mouse_start = mouseControl->GetMouseCoords();
+            sf::Vector2f m_mouse= renderer->mapPixelToCoords(sf::Mouse::getPosition(*renderer));
+            sf::Vertex topline[] =
+                    {
+                            sf::Vertex(m_mouse_start),
+                            sf::Vertex(sf::Vector2f(m_mouse.x, m_mouse_start.y)),
+                    };
+            sf::Vertex botline[] =
+                    {
+                            sf::Vertex(sf::Vector2f(m_mouse_start.x, m_mouse.y)),
+                            sf::Vertex(m_mouse)
+                    };
+            sf::Vertex leftline[] =
+                    {
+                            sf::Vertex(m_mouse_start),
+                            sf::Vertex(sf::Vector2f(m_mouse_start.x, m_mouse.y)),
+                    };
+            sf::Vertex rightline[] =
+                    {
+                            sf::Vertex(sf::Vector2f(m_mouse.x, m_mouse_start.y)),
+                            sf::Vertex(m_mouse)
+                    };
+
+            topline[0].color = sf::Color::Green;
+            topline[1].color = sf::Color::Green;
+            botline[0].color = sf::Color::Green;
+            botline[1].color = sf::Color::Green;
+            leftline[0].color = sf::Color::Green;
+            leftline[1].color = sf::Color::Green;
+            rightline[0].color = sf::Color::Green;
+            rightline[1].color = sf::Color::Green;
+
+            l_wind->GetRenderWindow()->draw(topline, 2, sf::Lines);
+            l_wind->GetRenderWindow()->draw(botline, 2, sf::Lines);
+            l_wind->GetRenderWindow()->draw(leftline, 2, sf::Lines);
+            l_wind->GetRenderWindow()->draw(rightline, 2, sf::Lines);
+        }
+
+        if (m_debug) {
+            //DebugTool Pathfinder: Show's entities's routes. if they have one.
+            auto itr = m_systemManager->GetSystem<S_Control>(System::Control)->GetRouterList()->find(entity);
+            if (itr != m_systemManager->GetSystem<S_Control>(System::Control)->GetRouterList()->end()) {
+                for (int i = 1; i < itr->second.size(); i++) {
+                    sf::Vertex line[] =
+                            {
+                                    sf::Vertex(itr->second[i - 1]),
+                                    sf::Vertex(itr->second[i])
+                            };
+                    line->color = sf::Color::Red;
+                    l_wind->GetRenderWindow()->draw(line, 2, sf::Lines);
+                }
+                //TODO finish attack rectangles
+                    sf::FloatRect floatrect=m_systemManager->GetEntityManager()->GetComponent<C_Attacker>(entity, Component::Attacker)->GetAreaOfAttack();
+                    sf::Vertex attackArea[]=
+                            {
+                                    sf::Vertex(sf::Vector2f(floatrect.top,floatrect.top)),
+                                    sf::Vertex(sf::Vector2f(floatrect.left,floatrect.left)),
+                            };
+                    l_wind->GetRenderWindow()->draw(attackArea, 2, sf::Lines);
+            }
+        }
+    }
 }
 
 void S_Renderer::SetSheetDirection(const EntityId& l_entity, const Direction& l_dir)

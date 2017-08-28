@@ -24,6 +24,8 @@ public:
     sf::Vector2f Avoidance(C_Movable* l_movable,C_Position* l_position);
     void SetPathKeeperMap(Map* gamemap){m_gamemap=gamemap;};
 private:
+    sf::Vector2u ConvertPixelCoords(sf::Vector2f coords) const;
+    unsigned int ConvertCoords(unsigned int l_x, unsigned int l_y, unsigned int l_layer)const;
     unsigned int m_slowingRadius;
     float m_avoidanceForce;
     Map* m_gamemap;

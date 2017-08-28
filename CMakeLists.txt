@@ -12,16 +12,17 @@ set(SOURCE_FILES main.cpp BaseState.h EventManager.h EventManager.cpp Game.h Gam
         State_Intro.h State_Intro.cpp State_MainMenu.h State_MainMenu.cpp State_Paused.cpp State_Paused.h Window.h
         Window.cpp EnumHasher.h  Utilities.h ResourceManager.h TextureManager.h Textures.cfg
         SpriteSheet.cpp SpriteSheet.h Anim_Base.cpp Anim_Base.h Anim_Directional.cpp Anim_Directional.h
-        Direction.h shlwapi.lib tiles.cfg  Map.cpp Map.h Entity_Manager.cpp
-        Entity_Manager.h media DebugOverlay.h State_GameOver.cpp
-        State_GameOver.h ECS_Types.h C_Base.h C_Position.h Bitmask.h C_Drawable.h C_SpriteSheet.h Event_Queue.h
-        EntityEvents.h System_Manager.cpp System_Manager.h S_Base.cpp S_Base.h Observer.h Message.h Communicator.h
-        MessageHandler.h EntityMessages.h S_Renderer.cpp S_Renderer.h C_Movable.h S_Movement.cpp S_Movement.h S_Control.cpp
-        S_Control.h S_Collision.cpp S_Collision.h S_SheetAnimation.cpp S_SheetAnimation.h S_State.cpp S_State.h C_State.h
-        C_Controller.h C_Collidable.h GUI_Style.h FontManager.h GUI_Element.cpp GUI_Element.h GUI_Event.h GUI_Interface.cpp
-        GUI_Interface.h fonts.cfg GUI_Manager.cpp GUI_Manager.h GUI_Scrollbar.cpp GUI_Scrollbar.h GUI_Textfield.cpp GUI_Textfield.h
-        GUI_Label.cpp GUI_Label.h openal32.dll AudioManager.h SoundManager.cpp SoundManager.h SoundProps.h C_SoundEmitter.h
-        audio.cfg C_SoundListener.h S_Sound.cpp S_Sound.h Pathfinder.cpp Pathfinder.h Node.h Grid.h Grid.cpp PathKeeper.cpp PathKeeper.h Fow.cpp Fow.h C_Vision.h S_Vision.cpp S_Vision.h)
+        Direction.h shlwapi.lib tiles.cfg  Map.cpp Map.h Entity_Manager.cpp Entity_Manager.h media DebugOverlay.h
+        State_GameOver.cpp State_GameOver.h ECS_Types.h C_Base.h C_Position.h Bitmask.h C_Drawable.h C_SpriteSheet.h Event_Queue.h
+        EntityEvents.h System_Manager.cpp System_Manager.h S_Base.cpp S_Base.h Observer.h Message.h Communicator.h MessageHandler.h
+        EntityMessages.h S_Renderer.cpp S_Renderer.h C_Movable.h S_Movement.cpp S_Movement.h S_Control.cpp S_Control.h S_Collision.cpp
+        S_Collision.h S_SheetAnimation.cpp S_SheetAnimation.h S_State.cpp S_State.h C_State.h C_Controller.h C_Collidable.h GUI_Style.h
+        FontManager.h GUI_Element.cpp GUI_Element.h GUI_Event.h GUI_Interface.cpp GUI_Interface.h fonts.cfg GUI_Manager.cpp GUI_Manager.h
+        GUI_Scrollbar.cpp GUI_Scrollbar.h GUI_Textfield.cpp GUI_Textfield.h GUI_Label.cpp GUI_Label.h openal32.dll AudioManager.h
+        SoundManager.cpp SoundManager.h SoundProps.h C_SoundEmitter.h audio.cfg C_SoundListener.h S_Sound.cpp S_Sound.h Grid.cpp
+        Grid.h Node.h Pathfinder.cpp Pathfinder.h PathKeeper.cpp PathKeeper.h Fow.cpp Fow.h C_Vision.h S_Vision.cpp S_Vision.h
+        C_Attacker.h C_Health.h C_TimedComponentBase.h S_Combat.cpp S_Combat.h S_Character_UI.cpp S_Character_UI.h C_UI_Element.h
+        S_Timers.cpp S_Timers.h Behaviour.cpp Behaviour.h Targeting.cpp Targeting.h MouseControl.cpp MouseControl.h)
 
 add_executable(ColdSpace ${SOURCE_FILES})
 target_link_libraries(ColdSpace ${SFML_LIBRARIES} shlwapi.lib)

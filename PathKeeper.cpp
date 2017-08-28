@@ -53,7 +53,8 @@ std::pair<sf::Vector2f,bool> PathKeeper::CheckRoute(C_Position* l_position ,std:
             }
             else
             {
-                if(length<18){
+                if(length<15)
+                {
                     route->pop_back();
                 }
                 return std::pair<sf::Vector2f, bool>(newtarget, arrival);
@@ -109,3 +110,10 @@ sf::Vector2f PathKeeper::CalculateAhead(C_Movable *l_movable, C_Position *l_posi
 }
 
 
+sf::Vector2u PathKeeper::ConvertPixelCoords(sf::Vector2f coords) const {
+    return sf::Vector2u((unsigned int)(coords.x/32),(unsigned int)(coords.y/32));
+}
+
+unsigned int PathKeeper::ConvertCoords(unsigned int l_x, unsigned int l_y, unsigned int l_layer) const {
+    return ((l_layer*m_gamemap->GetMapSize().y+l_y) *m_gamemap->GetMapSize().x + l_x);
+}

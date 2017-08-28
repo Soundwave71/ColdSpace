@@ -26,6 +26,7 @@ public:
 
     std::vector<sf::Vector2f> Astar(sf::Vector2f start, sf::Vector2f target);
     void CheckNeighbours(Node* currentNode, Node* targetNode);
+    Map* GetMap() {return m_gamemap;};
     Node*PopBest();
     bool IsOnClosed(Node* node);
     bool IsOnOpen(Node* node);
@@ -38,6 +39,7 @@ private:
     Grid m_grid;
     Map* m_gamemap;
     void ResetGrid();
+     sf::Vector2f CenterCoords(sf::Vector2f coords);
     std::vector<sf::Vector2f> route;
 };
 

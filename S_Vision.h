@@ -23,6 +23,10 @@ public:
     void RayCaster(sf::Vector2f entityPosition, unsigned int visionRadius, unsigned int controlType, EntityId entity);
     std::unordered_map<TileID,sf::Vector2u>BresenhamLine(sf::Vector2f entityPosition, sf::Vector2f lineCooords, int angle, unsigned int visionradius);
 
+    //Debug tools
+    void FOW_OFF();
+    void FOW_ON();
+    bool m_debug;
 private:
     unsigned int ConvertCoords(unsigned int l_x, unsigned int l_y, unsigned int l_layer)const;
     sf::Vector2u ConvertPixelCoords(sf::Vector2f coords) const;

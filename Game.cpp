@@ -21,6 +21,7 @@ Game::Game() : m_window("Chapter 12", sf::Vector2u(800, 600)),
 	m_context.m_guiManager = &m_guiManager;
 
 	m_systemManager.GetSystem<S_Sound>(System::Sound)->SetUp(&m_audioManager, &m_soundManager);
+	m_systemManager.GetSystem<S_Character_UI>(System::Character_UI)->SetUp(&m_textureManager);
 
 	// Debug:
 	m_systemManager.m_debugOverlay = &m_context.m_debugOverlay;

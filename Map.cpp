@@ -112,8 +112,8 @@ void Map::LoadMap(const std::string& l_path){
     std::cerr << "Cannot find BlackCell" <<std::endl;
     if(!m_context->m_textureManager->RequireResource("GreyCell"))
         std::cerr <<"Cannot find GreyCell"<< std::endl;
-    m_fow.BuildFOW(this); // TODO BUILDS FOG OF WAR. AWAITING TESTING
-    std::cout << m_fow.GetAllyFow()->size()<< " " << m_fow.GetLingeringFow()->size()<< " " << m_fow.GetEnemyFow()->size()<<std::endl;
+    m_fow.BuildFOW(this);
+    /* std::cout << m_fow.GetAllyFow()->size()<< " " << m_fow.GetLingeringFow()->size()<< " " << m_fow.GetEnemyFow()->size()<<std::endl;*/
 
 	/////
 

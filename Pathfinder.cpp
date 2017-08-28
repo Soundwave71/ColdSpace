@@ -26,7 +26,6 @@ sf::Vector2f Pathfinder::DestinationRandomizer() {
 }
 
 std::vector<sf::Vector2f> Pathfinder::Astar(sf::Vector2f start, sf::Vector2f target) {
-
         //Setup
         bool found = false;
         bool ready_1 = false;
@@ -56,9 +55,13 @@ std::vector<sf::Vector2f> Pathfinder::Astar(sf::Vector2f start, sf::Vector2f tar
             while (!found && m_open.size() > 0) {
 
                 processingNode = PopBest();
-                if (processingNode->m_ID == targetNode->m_ID) {
+                if (processingNode->m_ID == targetNode->m_ID)
+                {
                     found = true;
-                } else {
+                    processingNode->m_coords=target;
+                }
+                else
+                {
 
                     CheckNeighbours(processingNode, targetNode);
 
@@ -69,9 +72,9 @@ std::vector<sf::Vector2f> Pathfinder::Astar(sf::Vector2f start, sf::Vector2f tar
             }
 
             //Build Best Path
-            while (processingNode) {
-
-                    /*std::cout<<  processingNode->m_coords.x<< " " <<processingNode->m_coords.y<< " --> ";*/
+            while (processingNode)
+            {
+                /*std::cout<<  processingNode->m_coords.x<< " " <<processingNode->m_coords.y<< " --> ";*/
                 route.push_back(processingNode->m_coords);
 
                 processingNode = processingNode->m_leash;
@@ -106,14 +109,14 @@ void Pathfinder::CheckNeighbours(Node *currentNode, Node* targetNode) {
             bool InClosed = IsOnClosed(tempNode);
 
             if (!tempNode->IsSolid() && !InClosed && !InOpen) {
-                tempNode->m_coords = newcoords ;
+                tempNode->m_coords = CenterCoords(newcoords) ;
                 tempNode->ComputeCost(targetNode, currentNode, i >= 4);
                 tempNode->m_leash = currentNode;
                 m_open.push_back(tempNode);
 
             } else if (!tempNode->IsSolid() && InOpen) {
                 if ((i >= 4 ? currentNode->m_gCost + 14 : currentNode->m_gCost + 10) < tempNode->m_gCost) {
-                    currentNode->m_leash = tempNode;
+                    tempNode->m_leash = currentNode;
                     tempNode->ComputeCost(targetNode, currentNode, i >= 4);
                 }
             } else if (tempNode->IsSolid())
@@ -183,4 +186,10 @@ void Pathfinder::SetMapGrid(Map *gamemap) {
     m_directions[5]={tils,-tils}; //top right
     m_directions[6]={-tils,tils}; //bot left
     m_directions[7]={-tils,-tils}; // top left
+}
+
+sf::Vector2f Pathfinder::CenterCoords(sf::Vector2f coords) {
+    unsigned int tileSize= m_gamemap->GetTileSize();
+    sf::Vector2u normalizedCoords=sf::Vector2u((unsigned int)coords.x/tileSize, (unsigned int)coords.y/tileSize);
+    return sf::Vector2f(normalizedCoords.x*tileSize + tileSize/2, normalizedCoords.y*tileSize + tileSize/2);
 }

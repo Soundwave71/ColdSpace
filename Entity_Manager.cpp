@@ -14,6 +14,9 @@ EntityManager::EntityManager(SystemManager* l_sysMgr,
 	AddComponentType<C_SoundEmitter>(Component::SoundEmitter);
 	AddComponentType<C_SoundListener>(Component::SoundListener);
 	AddComponentType<C_Vision>(Component::Vision);
+    AddComponentType<C_Health>(Component::Health);
+    AddComponentType<C_Attacker>(Component::Attacker);
+    AddComponentType<C_UI_Element>(Component::UI_Element);
 }
 
 EntityManager::~EntityManager(){ Purge(); }
@@ -68,6 +71,11 @@ int EntityManager::AddEntity(const std::string& l_entityFile){
 				C_SpriteSheet* sheet = (C_SpriteSheet*)component;
 				sheet->Create(m_textureManager);
 			}
+            /*if(component->GetType() == Component::Vision)
+            {
+                C_Vision* vision= (C_Vision*) component;
+                std::cout << vision->GetVisionRadius() << std::endl;
+            }*/
 		}
 	}
 	file.close();
@@ -77,7 +85,11 @@ int EntityManager::AddEntity(const std::string& l_entityFile){
 bool EntityManager::RemoveEntity(const EntityId& l_id){
 	auto itr = m_entities.find(l_id);
 	if (itr == m_entities.end()){ return false; }
-	// Removing all components.
+    Message msg((MessageType)EntityMessage::Removed_Entity);
+    msg.m_receiver=l_id;
+    msg.m_int=l_id;
+    m_systems->GetMessageHandler()->Dispatch(msg);
+    // Removing all components.
 	while(itr->second.second.begin() != itr->second.second.end()){
 		delete itr->second.second.back();
 		itr->second.second.pop_back();

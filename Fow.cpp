@@ -139,3 +139,18 @@ Cell *Fow::GetCell(unsigned int l_x, unsigned int l_y, unsigned int l_layer, Fow
         return itr->second;
     }
 }
+
+void Fow::VisibleFow() {
+    for(auto itr: m_FOW)
+    {
+        itr.second->Visible();
+    }
+}
+
+void Fow::InvisibleFow()
+{
+    for(auto itr: m_FOW)
+    {
+        itr.second->Invisible();
+    }
+}

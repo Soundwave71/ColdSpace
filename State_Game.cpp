@@ -15,6 +15,12 @@ void State_Game::OnCreate(){
 	evMgr->AddCallback(StateType::Game, "Player_MoveRight", &State_Game::PlayerMove, this);
 	evMgr->AddCallback(StateType::Game, "Player_MoveUp", &State_Game::PlayerMove, this);
 	evMgr->AddCallback(StateType::Game, "Player_MoveDown", &State_Game::PlayerMove, this);
+	evMgr->AddCallback(StateType::Game, "Player_Attack", &State_Game::PlayerAttack, this);
+	///
+	evMgr->AddCallback(StateType::Game, "Mouse_Left", &State_Game::Selection_Press, this);
+	evMgr->AddCallback(StateType::Game, "Mouse_Left_Release", &State_Game::Selection_Release, this);
+    /*evMgr->AddCallback(StateType::Game, "Mouse_Right", &State_Game::Targeted_Move,this);*/
+	///
 
 	sf::Vector2u size = m_stateMgr->GetContext()->m_wind->GetWindowSize();
 	m_view.setSize(size.x, size.y);
@@ -28,10 +34,17 @@ void State_Game::OnCreate(){
 	EntityManager* entities = m_stateMgr->GetContext()->m_entityManager;
 	m_stateMgr->GetContext()->m_systemManager->GetSystem<S_Collision>(System::Collision)->SetMap(m_gameMap);
 	m_stateMgr->GetContext()->m_systemManager->GetSystem<S_Movement>(System::Movement)->SetMap(m_gameMap);
+	m_stateMgr->GetContext()->m_systemManager->GetSystem<S_Renderer>(System::Renderer)->SetMap(m_gameMap);
 
-	////
-	m_stateMgr->GetContext()->m_systemManager->GetSystem<S_Control>(System::Control)->GetPathfinder()->SetMapGrid(m_gameMap);
-	m_stateMgr->GetContext()->m_systemManager->GetSystem<S_Control>(System::Control)->GetPathKeeper()->SetPathKeeperMap(m_gameMap);
+	//// setting up S_Control tools.
+	S_Control* control= m_stateMgr->GetContext()->m_systemManager->GetSystem<S_Control>(System::Control);
+	control->GetPathfinder()->SetMapGrid(m_gameMap);
+	control->GetPathKeeper()->SetPathKeeperMap(m_gameMap);
+	control->GetMouseControl()->Setup(m_stateMgr->GetContext()->m_systemManager,
+									  control->GetRouterList(),
+									  control->GetBehaviour(),
+									  control->GetPathfinder(),
+									  m_stateMgr->GetContext()->m_wind->GetRenderWindow());
 	m_stateMgr->GetContext()->m_systemManager->GetSystem<S_Vision>(System::Vision)->SetMap(m_gameMap);
 	////
 
@@ -52,6 +65,10 @@ void State_Game::OnDestroy(){
 	evMgr->RemoveCallback(StateType::Game, "Player_MoveRight");
 	evMgr->RemoveCallback(StateType::Game, "Player_MoveUp");
 	evMgr->RemoveCallback(StateType::Game, "Player_MoveDown");
+	evMgr->RemoveCallback(StateType::Game, "Player_Attack");
+	evMgr->RemoveCallback(StateType::Game, "Mouse_Left");
+	evMgr->RemoveCallback(StateType::Game, "Mouse_Left_Released");
+	/*evMgr->RemoveCallback(StateType::Game, "Mouse_Right");*/
 	
 	delete m_gameMap;
 }
@@ -66,8 +83,7 @@ void State_Game::Update(const sf::Time& l_time){
 void State_Game::UpdateCamera(){
 	if (m_player == -1){ return; }
 	SharedContext* context = m_stateMgr->GetContext();
-	C_Position* pos = m_stateMgr->GetContext()->m_entityManager->
-		GetComponent<C_Position>(m_player, Component::Position);
+	C_Position* pos = m_stateMgr->GetContext()->m_entityManager->GetComponent<C_Position>(m_player, Component::Position);
 
 	m_view.setCenter(pos->GetPosition());
 	context->m_wind->GetRenderWindow()->setView(m_view);
@@ -125,6 +141,42 @@ void State_Game::PlayerMove(EventDetails* l_details){
 	m_stateMgr->GetContext()->m_systemManager->GetMessageHandler()->Dispatch(msg);
 }
 
+
+void State_Game::PlayerAttack(EventDetails* l_details) {
+	Message msg((MessageType) EntityMessage::Attack);
+	msg.m_receiver = m_player;
+	m_stateMgr->GetContext()->m_systemManager->GetMessageHandler()->Dispatch(msg);
+}
 void State_Game::ToggleOverlay(EventDetails* l_details){
 	m_stateMgr->GetContext()->m_debugOverlay.SetDebug(!m_stateMgr->GetContext()->m_debugOverlay.Debug());
+    S_Vision* vision= m_stateMgr->GetContext()->m_systemManager->GetSystem<S_Vision>(System::Vision);
+    if(!vision->m_debug){vision->FOW_OFF();}
+    if(vision->m_debug){vision->FOW_ON();}
+    vision->m_debug=!vision->m_debug;
+	S_Renderer* render= m_stateMgr->GetContext()->m_systemManager->GetSystem<S_Renderer>(System::Renderer);
+	render->m_debug=!render->m_debug;
 }
+
+void State_Game::Selection_Press(EventDetails* l_details)
+{
+    Message msg((MessageType) EntityMessage::Mouse_Selection);
+    msg.m_2f.m_x=l_details->m_mouse.x;
+    msg.m_2f.m_y=l_details->m_mouse.y;
+    m_stateMgr->GetContext()->m_systemManager->GetMessageHandler()->Dispatch(msg);
+}
+
+void State_Game::Selection_Release(EventDetails *l_details)
+{
+    Message msg((MessageType) EntityMessage::Mouse_Selection);
+    msg.m_2f.m_x=l_details->m_mouse.x;
+    msg.m_2f.m_y=l_details->m_mouse.y;
+    m_stateMgr->GetContext()->m_systemManager->GetMessageHandler()->Dispatch(msg);
+}
+
+/*
+void State_Game::Targeted_Move(EventDetails *l_details) {
+    Message msg((MessageType) EntityMessage::Mouse_Targeted_Route);
+    msg.m_2f.m_x=l_details->m_mouse.x;
+    msg.m_2f.m_y=l_details->m_mouse.y;
+    m_stateMgr->GetContext()->m_systemManager->GetMessageHandler()->Dispatch(msg);
+} */

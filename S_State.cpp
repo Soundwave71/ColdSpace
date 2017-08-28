@@ -10,6 +10,8 @@ S_State::S_State(SystemManager* l_systemMgr)
 
 	m_systemManager->GetMessageHandler()->Subscribe(EntityMessage::Move,this);
 	m_systemManager->GetMessageHandler()->Subscribe(EntityMessage::Switch_State,this);
+	m_systemManager->GetMessageHandler()->Subscribe(EntityMessage::Attack, this);
+	m_systemManager->GetMessageHandler()->Subscribe(EntityMessage::Hurt, this);
 }
 
 S_State::~S_State(){}
@@ -61,6 +63,27 @@ void S_State::Notify(const Message& l_message){
 			ChangeState(l_message.m_receiver,EntityState::Walking,false);
 		}
 		break;
+		case EntityMessage::Attack:
+		{
+			C_State* state = m_systemManager->GetEntityManager()->
+					GetComponent<C_State>(l_message.m_receiver, Component::State);
+
+			if (state->GetState() != EntityState::Dying && state->GetState() != EntityState::Attacking){
+				m_systemManager->AddEvent(l_message.m_receiver, (EventID)EntityEvent::Began_Attacking);
+				ChangeState(l_message.m_receiver, EntityState::Attacking, false);
+			}
+			break;
+		}
+		case EntityMessage::Hurt:
+		{
+			C_State* state = m_systemManager->GetEntityManager()->
+					GetComponent<C_State>(l_message.m_receiver, Component::State);
+
+			if (state->GetState() != EntityState::Dying){
+				ChangeState(l_message.m_receiver, EntityState::Hurt, false);
+			}
+			break;
+		}
 	case EntityMessage::Switch_State: 
 		ChangeState(l_message.m_receiver,
 			(EntityState)l_message.m_int,false);
@@ -79,4 +102,10 @@ void S_State::ChangeState(const EntityId& l_entity,
 	msg.m_receiver = l_entity;
 	msg.m_int = (int)l_state;
 	m_systemManager->GetMessageHandler()->Dispatch(msg);
+}
+
+EntityState S_State::GetState(const EntityId& l_entity){
+	EntityManager* entities = m_systemManager->GetEntityManager();
+	C_State* state = entities->GetComponent<C_State>(l_entity, Component::State);
+	return state->GetState();
 }

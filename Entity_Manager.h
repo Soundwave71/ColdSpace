@@ -52,7 +52,7 @@ public:
 
 	bool RemoveComponent(const EntityId& l_entity, const Component& l_component);
 	bool HasComponent(const EntityId& l_entity, const Component& l_component);
-
+	EntityContainer* GetEntityContainer(){return &m_entities;};
 	void Purge();
 private:
 	template<class T>

@@ -1,6 +1,6 @@
 #include "S_Control.h"
 #include "System_Manager.h"
-
+#include "Map.h"
 S_Control::S_Control(SystemManager* l_systemMgr)
 	: S_Base(System::Control,l_systemMgr)
 {
@@ -10,150 +10,169 @@ S_Control::S_Control(SystemManager* l_systemMgr)
 	req.TurnOnBit((unsigned int)Component::Controller);
 	m_requiredComponents.push_back(req);
 	req.Clear();
-    m_timer=0.0f;
+
+    //Subscribing to messages
     m_systemManager->GetMessageHandler()->Subscribe(EntityMessage::Target_Detected,this);
+    m_systemManager->GetMessageHandler()->Subscribe(EntityMessage::Mouse_Selection, this);
+
+    // Setting Control Tools
+    m_behaviour= new Behaviour();
+    m_targeting= new Targeting();
+
+    // Setting MouseControl
+    m_mouseControl= new MouseControl();
 }
 
-S_Control::~S_Control(){}
+S_Control::~S_Control()
+{
+    m_behaviour->Purge();
+    m_targeting->Purge();
+    delete m_behaviour;
+    delete m_targeting;
+}
 
 void S_Control::Update(float l_dT) {
-    std::pair<sf::Vector2f,bool> target;
-    unsigned int ID;
-    C_Movable* movable;
     C_Position* position;
-    C_SpriteSheet* sheet;
-    C_State * state;
-
-    for (auto entity = m_routerList.begin(); entity != m_routerList.end(); entity++)
-	{
-        //setting up
-        ID = entity->first;
-        movable = m_systemManager->GetEntityManager()->GetComponent<C_Movable>(ID, Component::Movable);
-        position = m_systemManager->GetEntityManager()->GetComponent<C_Position>(ID, Component::Position);
-        sheet=m_systemManager->GetEntityManager()->GetComponent<C_SpriteSheet>(ID, Component::SpriteSheet);
-        sf::Vector2f velocity;
-        EntityEvent event;
-
-        //check current position and nodes to reach
-        target=m_pathKeeper.CheckRoute(position, &(entity->second));
-
-        if(target.first!=sf::Vector2f(-1000,-1000))
+    for(auto entity:m_entities)
+    {
+        if(m_behaviour->GetBehaviourList()->find(entity)==m_behaviour->GetBehaviourList()->end()){continue;}
+        if (m_behaviour->GetBehaviour(entity) == Behaviours::Guard_Mode)
         {
-            Message msg((MessageType)EntityMessage::Move);
-            msg.m_receiver=ID;
-
-            if(target.second) //Last Node -> Arrival().
+            if (m_routerList.find(entity) != m_routerList.end())
             {
-                velocity= m_pathKeeper.Arrival(movable, position, target.first);
-                movable->AddVelocity(velocity);
-                if(m_pathKeeper.CollideCheck(movable,position))
-                    movable->AddVelocity(m_pathKeeper.Avoidance(movable, position));
-
-                if(movable->GetVelocity().x>0)
-                {
-                    msg.m_int = (int) Direction::Right;
-                    m_systemManager->GetMessageHandler()->Dispatch(msg);
-                }
-                else if(movable->GetVelocity().x<0)
-                {
-                    msg.m_int =(int) Direction::Left;
-                    m_systemManager->GetMessageHandler()->Dispatch(msg);
-                }
-                else if(movable->GetVelocity().x==0 && movable->GetVelocity().y<0)
-                {
-                    msg.m_int =(int) Direction::Up;
-                    m_systemManager->GetMessageHandler()->Dispatch(msg);
-                }
-                else if(movable->GetVelocity().x==0 && movable->GetVelocity().y>0)
-                {
-                    msg.m_int =(int) Direction::Down;
-                    m_systemManager->GetMessageHandler()->Dispatch(msg);
-                }
-
-
-
-            }
-            else //Common Node-> Seek().
-            {
-                velocity=m_pathKeeper.Seek(movable, position, target.first);
-                movable->AddVelocity(velocity);
-
-               if(m_pathKeeper.CollideCheck(movable,position))
-                    movable->AddVelocity(m_pathKeeper.Avoidance(movable, position));
-
-                if(movable->GetVelocity().x>0)
-                {
-                    msg.m_int = (int) Direction::Right;
-                    m_systemManager->GetMessageHandler()->Dispatch(msg);
-                }
-                else if(movable->GetVelocity().x<0)
-                {
-                    msg.m_int =(int) Direction::Left;
-                    m_systemManager->GetMessageHandler()->Dispatch(msg);
-                }
-                else if(movable->GetVelocity().x==0 && movable->GetVelocity().y<0)
-                {
-                    msg.m_int =(int) Direction::Up;
-                    m_systemManager->GetMessageHandler()->Dispatch(msg);
-                }
-                else if(movable->GetVelocity().x==0 && movable->GetVelocity().y>0)
-                {
-                    msg.m_int =(int) Direction::Down;
-                    m_systemManager->GetMessageHandler()->Dispatch(msg);
-                }
-
-
-
+                m_routerList.erase(entity); //do nothing
             }
         }
-        else //Recalculate destination in searching_Mode
+        else if(m_behaviour->GetBehaviour(entity) == Behaviours::Move_Mode)
         {
-            if(m_timer > 5.0f)
+            unsigned int controlType=m_systemManager->GetEntityManager()->GetComponent<C_Controller>(entity, Component::Controller)->GetControlType();
+            if(m_routerList.find(entity)==m_routerList.end())
             {
-                sf::Vector2f randomTarget= m_pathfinder.DestinationRandomizer();
-                std::cout << randomTarget.x << " " << randomTarget.y << std::endl;
-                std::vector<sf::Vector2f> tempvector(m_pathfinder.Astar(position->GetPosition(),randomTarget));
+                if(controlType==0)
+                {
+                    m_routerList.erase(entity);
+                    m_behaviour->SetBehaviour(entity, Behaviours::Search_Mode);
+                }
+                if(controlType==1){
+                    m_routerList.erase(entity);
+                    m_behaviour->SetBehaviour(entity, Behaviours::Guard_Mode);
+                }
+            }
+        }
+
+        else if (m_behaviour->GetBehaviour(entity) == Behaviours::Attack_Mode)
+        {
+            //Get target from targetingList, emplace in routerList if no route is found.
+            if (m_targeting->HasTarget(entity)) {
+                position = m_systemManager->GetEntityManager()->GetComponent<C_Position>(entity, Component::Position);
+                float visionRadius=m_systemManager->GetEntityManager()->GetComponent<C_Vision>(entity, Component::Vision)->GetVisionRadius();
+                unsigned int controlType=m_systemManager->GetEntityManager()->GetComponent<C_Controller>(entity, Component::Controller)->GetControlType();
+                EntityId targetedEntity = m_targeting->GetTarget(entity);
+                sf::Vector2f targetPosition = m_systemManager->GetEntityManager()->GetComponent<C_Position>(targetedEntity, Component::Position)->GetPosition();
+
+                sf::Vector2f distance = position->GetPosition()- targetPosition;
+                float length = sqrt((distance.x * distance.x) + (distance.y * distance.y));
+
+                //Disengage if target is too far away.
+                if(length<visionRadius )
+                {
+                    m_routerList.erase(entity);
+                    m_routerList.emplace(entity, m_pathfinder.Astar(position->GetPosition(), targetPosition));
+                    m_pathfinder.ClearRoute();
+                }
+
+                else
+                {
+                    if(controlType==0)
+                    {
+                        m_routerList.erase(entity);
+                        m_behaviour->SetBehaviour(entity, Behaviours::Search_Mode);
+                    }
+                    if(controlType==1){
+                        m_routerList.erase(entity);
+                        m_behaviour->SetBehaviour(entity, Behaviours::Guard_Mode);
+                    }
+                }
+            } else std::cerr << "No target found" << std::endl;
+        }
+
+        else if(m_behaviour->GetBehaviour(entity)==Behaviours::Scanning)
+        {
+            position = m_systemManager->GetEntityManager()->GetComponent<C_Position>(entity, Component::Position);
+            auto timer = m_timers.find(entity);
+            if (timer->second > 5.0f)
+            {
+                //TODO narrow down possible destinations
+                sf::Vector2f randomTarget = m_pathfinder.DestinationRandomizer();
+                /*std::cout << randomTarget.x << " " << randomTarget.y << std::endl;*/
+                m_routerList.erase(entity);
+                m_routerList.emplace(entity, m_pathfinder.Astar(position->GetPosition(), randomTarget));
                 m_pathfinder.ClearRoute();
-                entity->second.swap(tempvector);
-                m_timer=0;
+                m_behaviour->SetBehaviour(entity, Behaviours::Search_Mode);
+                timer->second = 0.0f;
             }
             else
             {
-                m_timer += l_dT;
-
+                timer->second += l_dT;
             }
         }
-	}
+        else if(m_behaviour->GetBehaviour(entity)==Behaviours::Patrol_Mode)
+        {
+            //TODO create Patrol pattern.
+
+            //entity must have a mouse targeted route. -> if no route is found, Give ERROR
+
+            //
+
+            //entity has no route -> reclaim old one in reverse
+
+            //save the last route.
+        }
+
+        else if(m_behaviour->GetBehaviour(entity)==Behaviours::Search_Mode)
+        {
+            //go in Scanning Mode if route cannot be found
+            if(m_routerList.find(entity)==m_routerList.end())
+            {
+               m_behaviour->SetBehaviour(entity, Behaviours::Scanning);
+            }
+        }
+    }
+    SortRoutes();
 }
 
 void S_Control::HandleEvent(const EntityId& l_entity, 
 	const EntityEvent& l_event)
 {
-	if (m_systemManager->GetEntityManager()->GetComponent<C_Controller>(l_entity, Component::Controller)->GetControlType() == 0) {
+    unsigned int control_type=m_systemManager->GetEntityManager()->GetComponent<C_Controller>(l_entity, Component::Controller)->GetControlType();
+	if ( control_type== 0) {
 		switch (l_event) {
 
 				/////
             case EntityEvent::Spawned:
-                // Start searching mode
-                    sf::Vector2f randomTarget = m_pathfinder.DestinationRandomizer();
-                    std::cout << randomTarget.x << " " << randomTarget.y << std::endl;
-                    m_routerList.emplace(l_entity, m_pathfinder.Astar(m_systemManager->GetEntityManager()->GetComponent<C_Position>(l_entity, Component::Position)->GetPosition(), randomTarget));
-                    m_pathfinder.ClearRoute();
+                if(!SetInLists(l_entity))
+                std::cerr << "ERROR, CANNOT SPAWN"<< std::endl;
+                m_behaviour->SetBehaviour(l_entity, Behaviours::Search_Mode);
+
                 break;
-                //TODO attack-follow order
-                /*
-            case EntityEvent::Target_Detected:
-                    break;
-                */
+
                 //TODO remove entity from routerlist if DESPAWNED
                 /*
             case EntityEvent ::Despawned;
+                 if(m_routerList.find(l_entity)!=m_routerList.end())
+                 {
+                        EraseFromLists(entity);
+                 }
                 break;
                 */
 				/////
 		}
-	} else if (m_systemManager->GetEntityManager()->GetComponent<C_Controller>(l_entity, Component::Controller)->GetControlType() == 1){
+	} else if (control_type == 1){
 		switch (l_event) {
+
+            case EntityEvent::Spawned:
+                if(!SetInLists(l_entity))
+                    std::cerr << "ERROR, CANNOT SPAWN"<< std::endl;
 			case EntityEvent::Moving_Left:
 				MoveEntity(l_entity, Direction::Left);
 				break;
@@ -166,30 +185,33 @@ void S_Control::HandleEvent(const EntityId& l_entity,
 			case EntityEvent::Moving_Down:
 				MoveEntity(l_entity, Direction::Down);
 				break;
-                //TODO attack-follow order
-            /*
-            case EntityEvent::Target_Detected:
-                break;
-            */
         }
 	}
 }
 
-//TODO finish Notifier
 void S_Control::Notify(const Message& l_message){
-    /*EntityManager* eMgr = m_systemManager->GetEntityManager();
+    EntityManager* eMgr = m_systemManager->GetEntityManager();
     EntityMessage m = (EntityMessage)l_message.m_type;
-    switch(m){
+    sf::RenderWindow* renderer= m_pathfinder.GetMap()->GetContext()->m_wind->GetRenderWindow();
+    switch(m)
+    {
         case EntityMessage::Target_Detected:
-        {
-            if (!HasEntity(l_message.m_receiver)){ return; }
-            C_Movable* movable = eMgr->GetComponent<C_Movable>
-                    (l_message.m_receiver, Component::Movable);
-            if (movable->GetVelocity() != sf::Vector2f(0.0f, 0.0f)){ return; }
-            m_systemManager->AddEvent(l_message.m_receiver,(EventID)EntityEvent::Target_Detected);
-        }
+
+            if(m_behaviour->GetBehaviour((EntityId)l_message.m_sender)==Behaviours::Guard_Mode ||
+                    m_behaviour->GetBehaviour((EntityId)l_message.m_sender)==Behaviours::Scanning ||
+                    m_behaviour->GetBehaviour((EntityId)l_message.m_sender)==Behaviours::Search_Mode)
+            {
+                if (eMgr->GetComponent<C_Controller>((EntityId) l_message.m_sender, Component::Controller)->GetControlType() == 0)
+                {
+                    m_targeting->SetTarget((EntityId) l_message.m_sender, (EntityId) l_message.m_receiver);
+                    m_behaviour->SetBehaviour((EntityId) l_message.m_sender, Behaviours::Attack_Mode);
+                }
+            }
             break;
-    }*/
+
+        case EntityMessage::Mouse_Selection:
+            m_mouseControl->MouseClick(m_entities);
+    }
 }
 
 void S_Control::MoveEntity(const EntityId& l_entity, 
@@ -197,4 +219,115 @@ void S_Control::MoveEntity(const EntityId& l_entity,
 {
 	C_Movable* mov = m_systemManager->GetEntityManager()->GetComponent<C_Movable>(l_entity, Component::Movable);
 	mov->Move(l_dir);
+}
+
+bool S_Control::SetInLists(EntityId entity) {
+    return !(!m_behaviour->AddEntity(entity)||
+             !m_targeting->AddEntity(entity) ||
+             !m_timers.emplace(entity, 0.0f).second);
+}
+
+bool S_Control::EraseFromLists(EntityId entity) {
+    return !(!m_behaviour->RemoveEntity(entity)||
+             !m_targeting->RemoveEntity(entity) ||
+             !m_timers.erase(entity));
+}
+
+void S_Control::SortRoutes() {
+    std::pair<sf::Vector2f,bool> target;
+    unsigned int ID;
+    C_Movable* movable;
+    C_Position* position;
+    C_State * state;
+
+    for (auto entity = m_routerList.begin(); entity != m_routerList.end(); entity++)
+    {
+        //setting up
+        ID = entity->first;
+        movable = m_systemManager->GetEntityManager()->GetComponent<C_Movable>(ID, Component::Movable);
+        position = m_systemManager->GetEntityManager()->GetComponent<C_Position>(ID, Component::Position);
+        state=m_systemManager->GetEntityManager()->GetComponent<C_State>(ID, Component::State);
+        sf::Vector2f velocity;
+        if(state->GetState()==EntityState::Dying || state->GetState()==EntityState::Hurt){continue;}
+
+        //check current position and nodes to reach
+        target=m_pathKeeper.CheckRoute(position, &(entity->second));
+
+        if(target.first!=sf::Vector2f(-1000,-1000)) {
+            Message msg((MessageType) EntityMessage::Move);
+            msg.m_receiver = ID;
+
+            if (target.second) //Last Node -> Arrival().
+            {
+                if (m_behaviour->GetBehaviour(entity->first) == Behaviours::Attack_Mode)
+                {
+                    //TODO fix attackArea checking
+                    C_Attacker *attacker = m_systemManager->GetEntityManager()->GetComponent<C_Attacker>(entity->first, Component::Attacker);
+                    unsigned int control_type = m_systemManager->GetEntityManager()->GetComponent<C_Controller>(
+                            entity->first, Component::Controller)->GetControlType();
+                    sf::FloatRect attackRect = attacker->GetAreaOfAttack();
+                    EntityId enemy = m_targeting->GetTarget(entity->first);
+                    unsigned int enemy_control_type = m_systemManager->GetEntityManager()->GetComponent<C_Controller>(
+                            enemy, Component::Controller)->GetControlType();
+                    C_Collidable *enemy_collidable = m_systemManager->GetEntityManager()->GetComponent<C_Collidable>(
+                            enemy, Component::Collidable);
+                    if (enemy_control_type != control_type &&
+                        attackRect.intersects(enemy_collidable->GetCollidable()))
+                    {
+                        Message attackmsg((MessageType) EntityMessage::Attack);
+                        msg.m_receiver = entity->first;
+                        m_systemManager->GetMessageHandler()->Dispatch(attackmsg);
+                    }
+                } else
+                {
+                    velocity = m_pathKeeper.Arrival(movable, position, target.first);
+                    movable->AddVelocity(velocity);
+                    if (m_pathKeeper.CollideCheck(movable, position))
+                        movable->AddVelocity(m_pathKeeper.Avoidance(movable, position));
+
+                    if (movable->GetVelocity().x > 0) {
+                        msg.m_int = (int) Direction::Right;
+                        m_systemManager->GetMessageHandler()->Dispatch(msg);
+                    } else if (movable->GetVelocity().x < 0) {
+                        msg.m_int = (int) Direction::Left;
+                        m_systemManager->GetMessageHandler()->Dispatch(msg);
+                    } else if (movable->GetVelocity().x == 0 && movable->GetVelocity().y < 0) {
+                        msg.m_int = (int) Direction::Up;
+                        m_systemManager->GetMessageHandler()->Dispatch(msg);
+                    } else if (movable->GetVelocity().x == 0 && movable->GetVelocity().y > 0) {
+                        msg.m_int = (int) Direction::Down;
+                        m_systemManager->GetMessageHandler()->Dispatch(msg);
+                    }
+
+
+                }
+            }
+            else //Common Node-> Seek().
+            {
+                velocity = m_pathKeeper.Seek(movable, position, target.first);
+                movable->AddVelocity(velocity);
+
+                if (m_pathKeeper.CollideCheck(movable, position))
+                    movable->AddVelocity(m_pathKeeper.Avoidance(movable, position));
+
+                if (movable->GetVelocity().x > 0) {
+                    msg.m_int = (int) Direction::Right;
+                    m_systemManager->GetMessageHandler()->Dispatch(msg);
+                } else if (movable->GetVelocity().x < 0) {
+                    msg.m_int = (int) Direction::Left;
+                    m_systemManager->GetMessageHandler()->Dispatch(msg);
+                } else if (movable->GetVelocity().x == 0 && movable->GetVelocity().y < 0) {
+                    msg.m_int = (int) Direction::Up;
+                    m_systemManager->GetMessageHandler()->Dispatch(msg);
+                } else if (movable->GetVelocity().x == 0 && movable->GetVelocity().y > 0) {
+                    msg.m_int = (int) Direction::Down;
+                    m_systemManager->GetMessageHandler()->Dispatch(msg);
+                }
+            }
+        }
+        else
+        {
+            m_routerList.erase(entity->first);
+        }
+    }
 }
