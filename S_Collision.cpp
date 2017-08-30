@@ -46,11 +46,10 @@ void S_Collision::EntityCollisions() {
             Behaviour* behaviourManager=m_systemManager->GetSystem<S_Control>(System::Control)->GetBehaviourManager();
             if(behaviourManager->GetBehaviourList()->find(*itr)==behaviourManager->GetBehaviourList()->end()){continue;}
 			Behaviours behaviour1=behaviourManager->GetBehaviour(*itr);
-            sf::Vector2f collisionVelocity (20,20);
+            sf::Vector2f collisionVelocity (25,25);
 			if(behaviour1!= Behaviours::Patrol_Mode &&behaviour1!= Behaviours::Move_Mode && behaviour1!= Behaviours::Search_Mode)
 			{
 				if (collidable1->GetCollidable().intersects(collidable2->GetCollidable())) {
-					//TODO Entity-on-entity collision?
                     sf::Vector2f distance= position1->GetPosition() - position2->GetPosition();
                     distance.x=distance.x/(float)fabs(distance.x)*collisionVelocity.x;
                     distance.y=distance.y/(float)fabs(distance.y)*collisionVelocity.y;

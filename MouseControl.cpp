@@ -77,6 +77,7 @@ void MouseControl::MouseClick(EntityList l_entities) {
         else
         {
             sf::Vector2f newMouseCoords=m_renderWindow->mapPixelToCoords(sf::Mouse::getPosition(*m_renderWindow));
+
             float temp=0;
             sf::Vector2f tempVector(0,0);
             if(newMouseCoords.x>m_mouseCoords.x && newMouseCoords.y<m_mouseCoords.y)
@@ -98,11 +99,10 @@ void MouseControl::MouseClick(EntityList l_entities) {
                 m_mouseCoords.x=temp;
             }
             sf::FloatRect selection_rect(m_mouseCoords,newMouseCoords);
-
             for (auto entity: l_entities) {
-                C_Collidable* entity_collidable = eMgr->GetComponent<C_Collidable>(entity, Component::Collidable);
+                C_Position* entity_position = eMgr->GetComponent<C_Position>(entity, Component::Position);
                 unsigned int controlType= eMgr->GetComponent<C_Controller>(entity, Component::Controller)->GetControlType();
-                if (selection_rect.intersects(entity_collidable->GetCollidable())&& controlType==1) {
+                if (selection_rect.contains(entity_position->GetPosition()) && controlType==1 &&entity_position->GetPosition().x< newMouseCoords.x) {
                     m_selection_list.push_back(entity);
                 }
             }

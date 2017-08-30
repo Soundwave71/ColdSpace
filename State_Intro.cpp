@@ -11,8 +11,17 @@ void State_Intro::OnCreate(){
 		->m_wind->GetRenderWindow()->getSize();
 
 	TextureManager* textureMgr = m_stateMgr->GetContext()->m_textureManager;
+
+	textureMgr->RequireResource("IntroBackground");
+	m_background.setTexture(*textureMgr->GetResource("IntroBackground"));
+	m_background.setOrigin(textureMgr->GetResource("IntroBackground")->getSize().x / 2.0f,
+							textureMgr->GetResource("IntroBackground")->getSize().y / 2.0f);
+
+	m_background.setPosition(windowSize.x / 2.0f, windowSize.y / 2.0f);
+
 	textureMgr->RequireResource("Intro");
 	m_introSprite.setTexture(*textureMgr->GetResource("Intro"));
+	m_introSprite.scale(1.5f,1.5f);
 	m_introSprite.setOrigin(textureMgr->GetResource("Intro")->getSize().x / 2.0f,
 							textureMgr->GetResource("Intro")->getSize().y / 2.0f);
 
@@ -30,12 +39,13 @@ void State_Intro::OnCreate(){
 		GetContext()->m_eventManager;
 	evMgr->AddCallback(StateType::Intro,"Intro_Continue",
 		&State_Intro::Continue,this);
-	m_stateMgr->GetContext()->m_soundManager->PlayMusic("Electrix", 100.f, true);
+	m_stateMgr->GetContext()->m_soundManager->PlayMusic("Intro", 75.f, true);
 }
 
 void State_Intro::OnDestroy(){
 	TextureManager* textureMgr = m_stateMgr->GetContext()->m_textureManager;
 	textureMgr->ReleaseResource("Intro");
+	textureMgr->ReleaseResource("IntroBackground");
 
 	EventManager* evMgr = m_stateMgr->
 		GetContext()->m_eventManager;
@@ -45,7 +55,7 @@ void State_Intro::OnDestroy(){
 void State_Intro::Draw(){
 	sf::RenderWindow* window = m_stateMgr->
 		GetContext()->m_wind->GetRenderWindow();
-
+	window->draw(m_background);
 	window->draw(m_introSprite);
 	window->draw(m_text);
 }

@@ -179,7 +179,20 @@ std::unordered_map<TileID,sf::Vector2u> S_Vision::BresenhamLine(sf::Vector2f ent
         {
             if (steep) { currentPoint = sf::Vector2f(y, x); }
             else       { currentPoint = sf::Vector2f(x, y); }
-            if (!m_gamemap->GetTile(ConvertPixelCoords(currentPoint).x, ConvertPixelCoords(currentPoint).y, 1)->m_solid) {
+            if(!m_gamemap->GetTile(ConvertPixelCoords(currentPoint).x, ConvertPixelCoords(currentPoint).y, 1))
+            {
+                //check if it's already emplaced
+                auto itr = line.find(
+                        ConvertCoords(ConvertPixelCoords(currentPoint).x, ConvertPixelCoords(currentPoint).y, 1));
+                //if not, emplace it.
+                if (itr == line.end())
+                {
+                    line.emplace(
+                            ConvertCoords(ConvertPixelCoords(currentPoint).x, ConvertPixelCoords(currentPoint).y, 1),
+                            ConvertPixelCoords(currentPoint));
+                }
+            }
+            else if (!m_gamemap->GetTile(ConvertPixelCoords(currentPoint).x, ConvertPixelCoords(currentPoint).y, 1)->m_solid) {
                 //check if it's already emplaced
                 auto itr = line.find(
                         ConvertCoords(ConvertPixelCoords(currentPoint).x, ConvertPixelCoords(currentPoint).y, 1));
@@ -225,9 +238,20 @@ std::unordered_map<TileID,sf::Vector2u> S_Vision::BresenhamLine(sf::Vector2f ent
         for (float x = x1; x <= maxX; x += Sheet::Tile_Size) {
             if (steep) { currentPoint = sf::Vector2f(y, x); }
             else { currentPoint = sf::Vector2f(x, y); }
-
-            if (!m_gamemap->GetTile(ConvertPixelCoords(currentPoint).x, ConvertPixelCoords(currentPoint).y,
-                                    1)->m_solid) {
+            if(!m_gamemap->GetTile(ConvertPixelCoords(currentPoint).x, ConvertPixelCoords(currentPoint).y, 1))
+            {
+                //check if it's already emplaced
+                auto itr = line.find(
+                        ConvertCoords(ConvertPixelCoords(currentPoint).x, ConvertPixelCoords(currentPoint).y, 1));
+                //if not, emplace it.
+                if (itr == line.end())
+                {
+                    line.emplace(
+                            ConvertCoords(ConvertPixelCoords(currentPoint).x, ConvertPixelCoords(currentPoint).y, 1),
+                            ConvertPixelCoords(currentPoint));
+                }
+            }
+            else if (!m_gamemap->GetTile(ConvertPixelCoords(currentPoint).x, ConvertPixelCoords(currentPoint).y, 1)->m_solid) {
                 //check if it's already emplaced
                 auto itr = line.find(
                         ConvertCoords(ConvertPixelCoords(currentPoint).x, ConvertPixelCoords(currentPoint).y, 1));
@@ -237,7 +261,9 @@ std::unordered_map<TileID,sf::Vector2u> S_Vision::BresenhamLine(sf::Vector2f ent
                             ConvertCoords(ConvertPixelCoords(currentPoint).x, ConvertPixelCoords(currentPoint).y, 1),
                             ConvertPixelCoords(currentPoint));
                 }
-            } else {   //check if it's already emplaced
+            }
+            else
+            {   //check if it's already emplaced
                 auto itr = line.find(
                         ConvertCoords(ConvertPixelCoords(currentPoint).x, ConvertPixelCoords(currentPoint).y, 1));
                 //if not, emplace it.

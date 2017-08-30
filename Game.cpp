@@ -1,7 +1,7 @@
 #include "Game.h"
 #include "S_Sound.h"
 
-Game::Game() : m_window("Chapter 12", sf::Vector2u(800, 600)),
+Game::Game() : m_window("BATTLE!", sf::Vector2u(800, 600)),
 			   m_entityManager(&m_systemManager, &m_textureManager), m_stateManager(&m_context),
 			   m_guiManager(m_window.GetEventManager(), &m_context), m_soundManager(&m_audioManager)
 {
@@ -31,7 +31,7 @@ Game::Game() : m_window("Chapter 12", sf::Vector2u(800, 600)),
 }
 
 Game::~Game(){ 
-	m_fontManager.ReleaseResource("Main"); // new
+	m_fontManager.ReleaseResource("Main");
 }
 
 sf::Time Game::GetElapsed(){ return m_clock.getElapsedTime(); }

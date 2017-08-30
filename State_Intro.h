@@ -19,5 +19,6 @@ public:
 	void Continue(EventDetails* l_details);
 private:
 	sf::Sprite m_introSprite;
+	sf::Sprite m_background;
 	sf::Text m_text;
 };

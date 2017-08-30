@@ -20,5 +20,5 @@ public:
 	void Play(EventDetails* l_details);
 	void Quit(EventDetails* l_details);
 private:
-
+ 	sf::Sprite m_background;
 };
