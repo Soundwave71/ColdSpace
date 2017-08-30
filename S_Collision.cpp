@@ -40,10 +40,24 @@ void S_Collision::EntityCollisions() {
 		for (auto itr2 = std::next(itr); itr2 != m_entities.end(); ++itr2) {
 			C_Collidable *collidable1 = entities->GetComponent<C_Collidable>(*itr, Component::Collidable);
 			C_Collidable *collidable2 = entities->GetComponent<C_Collidable>(*itr2, Component::Collidable);
-			if (collidable1->GetCollidable().intersects(collidable2->GetCollidable()))
+			C_Movable* movable1 = m_systemManager->GetEntityManager()->GetComponent<C_Movable>(*itr, Component::Movable);
+			C_Position* position1 = m_systemManager->GetEntityManager()->GetComponent<C_Position>(*itr, Component::Position);
+            C_Position* position2 = m_systemManager->GetEntityManager()->GetComponent<C_Position>(*itr2, Component::Position);
+            Behaviour* behaviourManager=m_systemManager->GetSystem<S_Control>(System::Control)->GetBehaviourManager();
+            if(behaviourManager->GetBehaviourList()->find(*itr)==behaviourManager->GetBehaviourList()->end()){continue;}
+			Behaviours behaviour1=behaviourManager->GetBehaviour(*itr);
+            sf::Vector2f collisionVelocity (20,20);
+			if(behaviour1!= Behaviours::Patrol_Mode &&behaviour1!= Behaviours::Move_Mode && behaviour1!= Behaviours::Search_Mode)
 			{
-				//TODO Entity-on-entity collision!
+				if (collidable1->GetCollidable().intersects(collidable2->GetCollidable())) {
+					//TODO Entity-on-entity collision?
+                    sf::Vector2f distance= position1->GetPosition() - position2->GetPosition();
+                    distance.x=distance.x/(float)fabs(distance.x)*collisionVelocity.x;
+                    distance.y=distance.y/(float)fabs(distance.y)*collisionVelocity.y;
+                    movable1->AddVelocity(distance);
+				}
 			}
+
 			C_Attacker *attacker1 = entities->GetComponent<C_Attacker>(*itr, Component::Attacker);
 			C_Attacker *attacker2 = entities->GetComponent<C_Attacker>(*itr2, Component::Attacker);
 			if (!attacker1 && !attacker2) { continue; }

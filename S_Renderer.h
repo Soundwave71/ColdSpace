@@ -16,7 +16,7 @@ public:
 	void SetMap(Map* l_gameMap){m_gameMap= l_gameMap;};
 
 	//debug tools
-
+	bool m_drawLines;
 	bool m_debug;
 private:
 	void SetSheetDirection(const EntityId& l_entity, const Direction& l_dir);

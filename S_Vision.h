@@ -23,6 +23,9 @@ public:
     void RayCaster(sf::Vector2f entityPosition, unsigned int visionRadius, unsigned int controlType, EntityId entity);
     std::unordered_map<TileID,sf::Vector2u>BresenhamLine(sf::Vector2f entityPosition, sf::Vector2f lineCooords, int angle, unsigned int visionradius);
 
+    RadiansAngle Cos360;
+    RadiansAngle Sin360;
+
     //Debug tools
     void FOW_OFF();
     void FOW_ON();
@@ -30,8 +33,7 @@ public:
 private:
     unsigned int ConvertCoords(unsigned int l_x, unsigned int l_y, unsigned int l_layer)const;
     sf::Vector2u ConvertPixelCoords(sf::Vector2f coords) const;
-    RadiansAngle Cos360;
-    RadiansAngle Sin360;
+
     Map* m_gamemap;
 };
 

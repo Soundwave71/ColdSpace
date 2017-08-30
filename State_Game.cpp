@@ -15,11 +15,13 @@ void State_Game::OnCreate(){
 	evMgr->AddCallback(StateType::Game, "Player_MoveRight", &State_Game::PlayerMove, this);
 	evMgr->AddCallback(StateType::Game, "Player_MoveUp", &State_Game::PlayerMove, this);
 	evMgr->AddCallback(StateType::Game, "Player_MoveDown", &State_Game::PlayerMove, this);
-	evMgr->AddCallback(StateType::Game, "Player_Attack", &State_Game::PlayerAttack, this);
 	///
 	evMgr->AddCallback(StateType::Game, "Mouse_Left", &State_Game::Selection_Press, this);
 	evMgr->AddCallback(StateType::Game, "Mouse_Left_Release", &State_Game::Selection_Release, this);
-    /*evMgr->AddCallback(StateType::Game, "Mouse_Right", &State_Game::Targeted_Move,this);*/
+	evMgr->AddCallback(StateType::Game, "Key_X", &State_Game::UnSelect, this);
+	evMgr->AddCallback(StateType::Game, "Key_P", &State_Game::Selection_Patrol, this);
+	evMgr->AddCallback(StateType::Game, "Key_T", &State_Game::ToggleTutorial, this);
+	evMgr->AddCallback(StateType::Game, "Key_K", &State_Game::ToggleLines, this);
 	///
 
 	sf::Vector2u size = m_stateMgr->GetContext()->m_wind->GetWindowSize();
@@ -42,8 +44,9 @@ void State_Game::OnCreate(){
 	control->GetPathKeeper()->SetPathKeeperMap(m_gameMap);
 	control->GetMouseControl()->Setup(m_stateMgr->GetContext()->m_systemManager,
 									  control->GetRouterList(),
-									  control->GetBehaviour(),
+                                      control->GetBehaviourManager(),
 									  control->GetPathfinder(),
+									  control->GetLastPosition(),
 									  m_stateMgr->GetContext()->m_wind->GetRenderWindow());
 	m_stateMgr->GetContext()->m_systemManager->GetSystem<S_Vision>(System::Vision)->SetMap(m_gameMap);
 	////
@@ -65,10 +68,11 @@ void State_Game::OnDestroy(){
 	evMgr->RemoveCallback(StateType::Game, "Player_MoveRight");
 	evMgr->RemoveCallback(StateType::Game, "Player_MoveUp");
 	evMgr->RemoveCallback(StateType::Game, "Player_MoveDown");
-	evMgr->RemoveCallback(StateType::Game, "Player_Attack");
 	evMgr->RemoveCallback(StateType::Game, "Mouse_Left");
 	evMgr->RemoveCallback(StateType::Game, "Mouse_Left_Released");
-	/*evMgr->RemoveCallback(StateType::Game, "Mouse_Right");*/
+	evMgr->RemoveCallback(StateType::Game, "Key_X");
+	evMgr->RemoveCallback(StateType::Game, "Key_P");
+	evMgr->RemoveCallback(StateType::Game, "Key_T");
 	
 	delete m_gameMap;
 }
@@ -141,12 +145,6 @@ void State_Game::PlayerMove(EventDetails* l_details){
 	m_stateMgr->GetContext()->m_systemManager->GetMessageHandler()->Dispatch(msg);
 }
 
-
-void State_Game::PlayerAttack(EventDetails* l_details) {
-	Message msg((MessageType) EntityMessage::Attack);
-	msg.m_receiver = m_player;
-	m_stateMgr->GetContext()->m_systemManager->GetMessageHandler()->Dispatch(msg);
-}
 void State_Game::ToggleOverlay(EventDetails* l_details){
 	m_stateMgr->GetContext()->m_debugOverlay.SetDebug(!m_stateMgr->GetContext()->m_debugOverlay.Debug());
     S_Vision* vision= m_stateMgr->GetContext()->m_systemManager->GetSystem<S_Vision>(System::Vision);
@@ -173,10 +171,22 @@ void State_Game::Selection_Release(EventDetails *l_details)
     m_stateMgr->GetContext()->m_systemManager->GetMessageHandler()->Dispatch(msg);
 }
 
-/*
-void State_Game::Targeted_Move(EventDetails *l_details) {
-    Message msg((MessageType) EntityMessage::Mouse_Targeted_Route);
-    msg.m_2f.m_x=l_details->m_mouse.x;
-    msg.m_2f.m_y=l_details->m_mouse.y;
-    m_stateMgr->GetContext()->m_systemManager->GetMessageHandler()->Dispatch(msg);
-} */
+void State_Game::UnSelect(EventDetails *l_details) {
+	Message msg((MessageType) EntityMessage::UnSelect);
+	m_stateMgr->GetContext()->m_systemManager->GetMessageHandler()->Dispatch(msg);
+}
+
+void State_Game::Selection_Patrol(EventDetails *l_details) {
+	Message msg((MessageType) EntityMessage::Selection_Patrol);
+	m_stateMgr->GetContext()->m_systemManager->GetMessageHandler()->Dispatch(msg);
+}
+
+void State_Game::ToggleTutorial(EventDetails *l_details) {
+ 	GUI_Manager* GuiMgr= m_stateMgr->GetContext()->m_guiManager;
+	GuiMgr->GetInterface(GuiMgr->GetCurrentState(),"Test")->IsActive()? GuiMgr->GetInterface(GuiMgr->GetCurrentState(),"Test")->SetActive(false) :GuiMgr->GetInterface(GuiMgr->GetCurrentState(),"Test")->SetActive(true);
+}
+
+void State_Game::ToggleLines(EventDetails *l_details) {
+	S_Renderer* render= m_stateMgr->GetContext()->m_systemManager->GetSystem<S_Renderer>(System::Renderer);
+	render->m_drawLines=!render->m_drawLines;
+}

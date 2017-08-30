@@ -27,28 +27,34 @@ public:
                     m_systemManager(nullptr),
                     m_pathfinder(nullptr),
                     m_renderWindow(nullptr),
+                    m_lastPosition(nullptr),
                     m_initialBuffer(true){};
 
     ~MouseControl();
 
     void Setup(SystemManager*l_systemManager,
-               RouterList*l_routerList,
+               RouterList*l_routeList,
                Behaviour*l_behaviour,
                Pathfinder* l_pathfinder,
+               std::unordered_map<EntityId,std::pair<sf::Vector2f,sf::Vector2f>>* l_lastPosition,
                sf::RenderWindow* l_renderWindow);
 
     void MouseClick(EntityList l_entities);
     void Move();
+    void UnSelect();
+    void Patrol();
 
     bool IsMousePressed(){return m_mousePressed;};
     sf::Vector2f GetMouseCoords(){return m_mouseCoords;};
     bool IsSelected(){return m_selection;};
+    std::vector<EntityId>* GetSelectionList(){return &m_selection_list;};
 
 private:
     bool m_mousePressed;
     bool m_selection;
     sf::Vector2f m_mouseCoords;
     std::vector<EntityId> m_selection_list;
+    std::unordered_map<EntityId,std::pair<sf::Vector2f,sf::Vector2f>>* m_lastPosition;
 
     Behaviour*m_behaviour;
     RouterList* m_routerList;

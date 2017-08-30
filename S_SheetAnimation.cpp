@@ -76,7 +76,6 @@ void S_SheetAnimation::Notify(const Message& l_message){
 					ChangeAnimation(l_message.m_receiver,"Attack",true,false);
 					break;
 					case EntityState::Hurt:
-						// TODO this is a Placeholder animation.
 						ChangeAnimation(l_message.m_receiver, "SpellCast", true, false);
 						break;
 					case EntityState::Dying:

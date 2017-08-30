@@ -15,15 +15,17 @@ public:
 	void Update(float l_dT);
 	void HandleEvent(const EntityId& l_entity,const EntityEvent& l_event);
 	void Notify(const Message& l_message);
+
 	Pathfinder * GetPathfinder(){return &m_pathfinder;};
 	PathKeeper* GetPathKeeper(){return &m_pathKeeper;};
 	RouterList* GetRouterList(){return &m_routerList;};
     MouseControl* GetMouseControl(){return m_mouseControl;};
-    Behaviour* GetBehaviour(){return m_behaviour;};
+    Behaviour* GetBehaviourManager(){return m_behaviour;};
+	std::unordered_map<EntityId,std::pair<sf::Vector2f,sf::Vector2f>>* GetLastPosition(){return &m_lastPosition;};
+
 	bool SetInLists(EntityId entity);
 	bool EraseFromLists(EntityId entity);
 	void SortRoutes();
-
 private:
 	void MoveEntity(const EntityId& l_entity, const Direction& l_dir);
 	Pathfinder m_pathfinder;
@@ -33,6 +35,7 @@ private:
     Targeting* m_targeting;
     MouseControl* m_mouseControl;
 
+	std::unordered_map<EntityId,std::pair<sf::Vector2f, sf::Vector2f>> m_lastPosition;
 	RouterList m_routerList;
 	std::unordered_map<EntityId, float> m_timers;
 

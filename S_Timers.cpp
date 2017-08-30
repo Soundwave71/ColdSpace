@@ -43,11 +43,19 @@ void S_Timers::Update(float l_dT){
 				msg.m_receiver = entity;
 				m_systemManager->GetMessageHandler()->Dispatch(msg);
 				health->ResetHealth();
+				m_systemManager->GetEntityManager()->GetComponent<C_Position>(entity, Component::Position)->SetPosition(m_spawnPoints.find(entity)->second);
 			}
 		} else { continue; }
 		m_systemManager->GetSystem<S_State>(System::State)->ChangeState(entity, EntityState::Idle, true);
 	}
 }
 
-void S_Timers::HandleEvent(const EntityId& l_entity, const EntityEvent& l_event){}
+void S_Timers::HandleEvent(const EntityId& l_entity, const EntityEvent& l_event){
+	switch (l_event)
+	{
+		case EntityEvent::Spawned:
+			m_spawnPoints.emplace(l_entity, m_systemManager->GetEntityManager()->GetComponent<C_Position>(l_entity, Component::Position)->GetPosition());
+			break;
+	}
+}
 void S_Timers::Notify(const Message& l_message){}

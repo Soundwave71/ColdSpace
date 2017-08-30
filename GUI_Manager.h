@@ -36,7 +36,7 @@ public:
 		const std::string& l_interface, const std::string& l_name);
 
 	void SetCurrentState(const StateType& l_state);
-
+	StateType& GetCurrentState(){return  m_currentState;};
 	SharedContext* GetContext();
 
 	void DefocusAllInterfaces();

@@ -8,6 +8,6 @@ Component 3 64.0 1024.0 1024.0 1
 Component 4 0
 Component 5 10.0 10.0 0.0 0.0 2
 Component 8 96.0
-Component 9 3 333 2000
-Component 10 0 0 16 16 500 333
+Component 9 3 333 4000
+Component 10 0 0 20 20 500 333
 Component 11 0 -32

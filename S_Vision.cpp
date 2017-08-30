@@ -39,7 +39,6 @@ void S_Vision::Update(float l_dt) {
 
     for(auto entity: m_entities)
     {
-        //TODO : remove performance issues by not checking for enemy fow, but just distance.
         C_Position* position = entities->GetComponent<C_Position>(entity, Component::Position);
         C_Vision* vision = entities->GetComponent<C_Vision>(entity, Component::Vision);
         C_Controller* control = entities->GetComponent<C_Controller>(entity, Component::Controller);
@@ -64,57 +63,64 @@ void S_Vision::RayCaster(sf::Vector2f entityPosition, unsigned int visionRadius,
     sf::Vector2f lineCoords;
     std::unordered_map<TileID, sf::Vector2u> linePoints;
     std::vector<EntityId> targets;
+    if(controlType==1) {
+        for (int i = 0; i < 360; i += 4) {
+            lineCoords = sf::Vector2f(entityPosition.x + (Cos360[i] * visionRadius),
+                                      entityPosition.y + (Sin360[i] * visionRadius));
+            if (lineCoords.x < 0) { lineCoords.x = 0.0f; }
+            if (lineCoords.y < 0) { lineCoords.y = 0.0f; }
+            if (lineCoords.x >= m_gamemap->GetMapSize().x * Sheet::Tile_Size) { lineCoords.x = m_gamemap->GetMapSize().x * Sheet::Tile_Size - 1; }
+            if (lineCoords.y >= m_gamemap->GetMapSize().y * Sheet::Tile_Size) { lineCoords.y = m_gamemap->GetMapSize().y * Sheet::Tile_Size - 1; }
 
-    for (int i = 0; i < 360; i+=4)
-    {
-        lineCoords = sf::Vector2f(entityPosition.x + (Cos360[i] * visionRadius),
-                                  entityPosition.y + (Sin360[i] * visionRadius));
-        if(lineCoords.x < 0){lineCoords.x=0.0f;}
-        if(lineCoords.y < 0){lineCoords.y=0.0f;}
-        if( lineCoords.x >= m_gamemap->GetMapSize().x*Sheet::Tile_Size){lineCoords.x=m_gamemap->GetMapSize().x*Sheet::Tile_Size-1;}
-        if( lineCoords.y >= m_gamemap->GetMapSize().y*Sheet::Tile_Size){lineCoords.y=m_gamemap->GetMapSize().y*Sheet::Tile_Size-1;}
+            linePoints = BresenhamLine(entityPosition, lineCoords, i, visionRadius);
 
-        linePoints = BresenhamLine(entityPosition, lineCoords, i, visionRadius);
+            //checks every point of the Line.
+            for (auto &point: linePoints) {
+                x = point.second.x;
+                y = point.second.y;
 
-        //checks every point of the Line.
-        for (auto &point: linePoints)
-        {
-            x=point.second.x;
-            y=point.second.y;
+                //turning down the fog of war where necessary, along the Line.
+                if (fow->GetCell(x, y, 4, FowMapList::Ally)->m_visible && controlType == 1) {
+                    fow->ToggleVisibleOff((CellID) fow->ConvertCoords(x, y, 4), FowMapList::Ally);
+                }
 
-            //turning down the fog of war where necessary, along the Line.
-            if (fow->GetCell(x, y, 4, FowMapList::Ally)->m_visible && controlType==1)
-            {
-                fow->ToggleVisibleOff((CellID) fow->ConvertCoords(x, y, 4), FowMapList::Ally);
-            }
+                if (fow->GetCell(x, y, 3, FowMapList::Lingering)->m_visible && controlType == 1) {
+                    fow->ToggleVisibleOff((CellID) fow->ConvertCoords(x, y, 3), FowMapList::Lingering);
+                }
 
-             if (fow->GetCell(x, y, 3, FowMapList::Lingering)->m_visible &&controlType==1)
-            {
-                 fow->ToggleVisibleOff((CellID) fow->ConvertCoords(x, y, 3), FowMapList::Lingering);
-            }
-            /*
-             if (controlType == 0 && fow->GetCell(x, y, 4, FowMapList::Enemy)->m_visible)
-            {
-                 fow->ToggleVisibleOff((CellID) fow->ConvertCoords(x, y, 4), FowMapList::Enemy);
-            }
-            */
-            //check every entity position for intersections with the Line.
-            for(auto pos: m_entities) {
-                sf::Vector2f pixelcoords = m_systemManager->GetEntityManager()->GetComponent<C_Position>(pos, Component::Position)->GetPosition();
-                sf::Vector2u coords = ConvertPixelCoords(pixelcoords);
-                unsigned int targetControlType = m_systemManager->GetEntityManager()->GetComponent<C_Controller>(pos, Component::Controller)->GetControlType();
+                /*
+                 if (controlType == 0 && fow->GetCell(x, y, 4, FowMapList::Enemy)->m_visible)
+                {
+                     fow->ToggleVisibleOff((CellID) fow->ConvertCoords(x, y, 4), FowMapList::Enemy);
+                }
+                */
 
-                if (targetControlType != controlType) {
-                    if (point.second == coords) {
-                        targets.push_back(pos);
-                    }
-                    if (point.second == coords) {
-                        targets.push_back(pos);
+                //check every entity position for intersections with the Line.
+                for (auto pos: m_entities) {
+                    sf::Vector2f pixelcoords = m_systemManager->GetEntityManager()->GetComponent<C_Position>(pos, Component::Position)->GetPosition();
+                    sf::Vector2u coords = ConvertPixelCoords(pixelcoords);
+                    unsigned int targetControlType = m_systemManager->GetEntityManager()->GetComponent<C_Controller>(pos, Component::Controller)->GetControlType();
+                    EntityState targetState = m_systemManager->GetEntityManager()->GetComponent<C_State>(pos, Component::State)->GetState();
+                    if (targetControlType != controlType && targetState!= EntityState::Dying) {
+                        if (point.second == coords)
+                        {
+                            targets.push_back(pos);
+                        }
                     }
                 }
             }
+            linePoints.clear();
         }
-        linePoints.clear();
+    }
+    else
+    {for(auto itr: m_entities)
+        {
+            unsigned int targetControlType = m_systemManager->GetEntityManager()->GetComponent<C_Controller>(itr, Component::Controller)->GetControlType();
+            EntityState targetState = m_systemManager->GetEntityManager()->GetComponent<C_State>(itr, Component::State)->GetState();
+            if (targetControlType != controlType && targetState!=EntityState::Dying) {
+                targets.push_back(itr);
+            }
+        }
     }
     //RAYCASTING ENDS
 

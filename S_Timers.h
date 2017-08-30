@@ -19,5 +19,6 @@ public:
     void HandleEvent(const EntityId& l_entity, const EntityEvent& l_event);
     void Notify(const Message& l_message);
 private:
+    std::unordered_map<EntityId, sf::Vector2f> m_spawnPoints;
 };
 #endif //ENTROPYGUI_S_TIMERS_H
