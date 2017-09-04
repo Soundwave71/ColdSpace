@@ -1,4 +1,4 @@
-Interface SomeWindow TestInterface.style 50 50 Movable Title "Test Interface"
-Element Label TestLabel 0 0 Test.style "To write a quick tutorial."
+Interface SomeWindow TestInterface.style 50 50 Movable Title "Tutorial"
+Element Label TestLabel 0 0 Test.style "X to deselect, P to patrol, T to close tutorial"
 Element Label OtherLabel 0 320 Test2.style "This is a different label"
 Element Scrollbar Slider1 0 0 TestScrollbar.style Vertical

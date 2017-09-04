@@ -1,0 +1,15 @@
+Name Enemy
+Attributes 4095
+|Component|ID|Individual attributes|
+Component 0 0 0 1
+Component 1 Enemy
+Component 2 0
+Component 3 128.0 1024.0 1024.0 1
+Component 4 0
+Component 5 10.0 10.0 0.0 0.0 2
+Component 6 enemyFootsteps:1,4  impact:1 swish:1 grunt:3
+|Component 7
+Component 8 96.0
+Component 9 3 333 2000
+Component 10 0 0 20 20 500 333
+Component 11 0 -32

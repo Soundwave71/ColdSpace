@@ -21,4 +21,5 @@ public:
 	void Quit(EventDetails* l_details);
 private:
  	sf::Sprite m_background;
+	sf::Sprite m_introTitle;
 };

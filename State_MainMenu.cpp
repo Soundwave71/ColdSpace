@@ -18,6 +18,12 @@ void State_MainMenu::OnCreate(){
 
 	m_background.setPosition(windowSize.x / 2.0f, windowSize.y / 2.0f);
 
+	textureMgr->RequireResource("Intro");
+	m_introTitle.setTexture(*textureMgr->GetResource("Intro"));
+	m_introTitle.setOrigin(textureMgr->GetResource("Intro")->getSize().x / 2.0f,
+						   textureMgr->GetResource("Intro")->getSize().y / 2.0f);
+
+	m_introTitle.setPosition(windowSize.x/2.0f,textureMgr->GetResource("Intro")->getSize().y / 2.0f);
 	GUI_Manager* gui = m_stateMgr->GetContext()->m_guiManager;
 	gui->LoadInterface(StateType::MainMenu, "MainMenu.interface", "MainMenu");
 	gui->GetInterface(StateType::MainMenu, "MainMenu")->SetPosition(sf::Vector2f(250.f, 168.f));
@@ -31,6 +37,7 @@ void State_MainMenu::OnDestroy(){
 
 	TextureManager* textureMgr = m_stateMgr->GetContext()->m_textureManager;
 	textureMgr->ReleaseResource("IntroBackground");
+	textureMgr->ReleaseResource("Intro");
 
 	EventManager* eMgr = m_stateMgr->GetContext()->m_eventManager;
 	eMgr->RemoveCallback(StateType::MainMenu, "MainMenu_Play");
@@ -56,6 +63,7 @@ void State_MainMenu::Quit(EventDetails* l_details){ m_stateMgr->GetContext()->m_
 void State_MainMenu::Draw(){
 	sf::RenderWindow* window = m_stateMgr->GetContext()->m_wind->GetRenderWindow();
 	window->draw(m_background);
+	window->draw(m_introTitle);
 }
 
 void State_MainMenu::Update(const sf::Time& l_dT){}
